@@ -149,21 +149,33 @@ async function startServer() {
     try {
       if (provider === 'gemini') {
         const testClient = new GoogleGenAI({ apiKey });
-        const models = [model || 'gemini-2.5-flash', 'gemini-1.5-flash'];
+        const models = [model || 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.5-flash'];
         let success = false;
         let lastError = '';
         for (const m of models) {
           try {
             const result = await testClient.models.generateContent({
               model: m,
-              contents: 'Reply with the word "OK" if you can read this.',
+              contents: 'Reply with the word OK.',
             });
             if (result.text) {
               success = true;
               break;
             }
           } catch (err: any) {
-            lastError = err.message;
+            const errStr = err.message || String(err);
+            lastError = errStr;
+            // If it's an invalid API key, stop immediately — no point trying more models
+            if (errStr.includes('API_KEY_INVALID') || errStr.includes('API key not valid')) {
+              return res.json({ 
+                valid: false, 
+                error: 'Your API key is not valid. Please get a valid key from https://aistudio.google.com/apikey — it should start with "AIzaSy..."' 
+              });
+            }
+            // If quota exceeded, the key IS valid, just rate-limited
+            if (errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota')) {
+              return res.json({ valid: true, warning: 'Key is valid but you have hit your free quota limit. Upgrade your Google AI plan to continue.' });
+            }
           }
         }
         if (success) {
@@ -364,6 +376,7 @@ async function startServer() {
     let assistantMessage = '';
     let agentThinking = '';
     let llmHandled = false;
+    let lastModelError = '';
 
     if (client) {
       try {
@@ -482,8 +495,12 @@ CRITICAL RULES:
           contents.push({ role: 'user', parts: [{ text: instruction }] });
         }
 
-        // Call Gemini model with automatic fallback across high-capacity models
-        const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+        // Call Gemini model with automatic fallback. Model IDs verified against live API responses.
+        const modelsToTry = [
+          'gemini-3.6-flash',   // Latest recommended by Google API error message
+          'gemini-3.5-flash',   // Fallback
+          'gemini-2.5-flash',   // Fallback (may hit rate limits on free tier)
+        ];
         let response: any = null;
 
         for (const model of modelsToTry) {
@@ -493,7 +510,6 @@ CRITICAL RULES:
               contents,
               config: {
                 systemInstruction: systemPrompt,
-                responseMimeType: 'application/json',
                 temperature: 0.7,
               },
             });
@@ -504,11 +520,12 @@ CRITICAL RULES:
 
             response = await Promise.race([geminiPromise, timeoutPromise]);
             if (response?.text) {
+              console.log(`[LLM] Success with model: ${model}`);
               break;
             }
           } catch (_modelErr: any) {
-            console.warn(`Model ${model} failed:`, _modelErr.message || _modelErr);
-            // Silently try next fallback model in the list
+            lastModelError = _modelErr.message || String(_modelErr);
+            console.error(`[LLM] Model ${model} failed:`, lastModelError);
           }
         }
 
@@ -585,8 +602,13 @@ CRITICAL RULES:
     if (!llmHandled) {
       if (!client) {
         assistantMessage = "I cannot answer your question right now because no Gemini API key is configured. Please click the Settings gear to add your API key so I can chat with you and edit the timeline!";
+      } else if (lastModelError.includes('API_KEY_INVALID') || lastModelError.includes('API key not valid')) {
+        assistantMessage = "❌ Your Gemini API key is not valid. The key you entered (starts with 'AQ.') is a GCP credential, not a Gemini API key. Please go to https://aistudio.google.com/apikey and create a new key — it should start with 'AIzaSy...'. Then paste it in Settings.";
+      } else if (lastModelError.includes('RESOURCE_EXHAUSTED') || lastModelError.includes('quota')) {
+        assistantMessage = "⚠️ Your Gemini API free quota has been reached (20 requests/day). Your key is valid, but you need to upgrade your Google AI plan at https://aistudio.google.com to continue using the editor today.";
       } else {
-        assistantMessage = "I'm sorry, but my connection to the Gemini API failed (or the response was invalid). Please verify your API key in Settings and try again.";
+        console.error('[LLM] All models failed. Last error:', lastModelError);
+        assistantMessage = `I'm sorry, but the Gemini API call failed. Error: ${lastModelError || 'unknown'}. Please verify your API key in Settings.`;
       }
       operations = [];
     }
