@@ -1,0 +1,10 @@
+{
+  "name": "Remix Autonomous Video Editor",
+  "description": "Autonomous video editing app replacing CapCut with workflow preset assembly, manual multi-track timeline editing, keyframe animation, forced-alignment manifest matching, and prompt-driven AI edits.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
