@@ -49,23 +49,23 @@ const CORE_MATCHING_RULES_TEXT = `# Silent Strategist Skill — Core Matching Wo
 
 This describes the foundation stage of the Silent Strategist Skill: turning a script, a set of images, and a voiceover audio file into a fully sequenced and timed video with OpenAI Whisper STT, AI thinking reasoning, motion varieties, and tailored subtitle formatting.
 
-## Step 1: Check Inputs & AI Agent Thinking Process
-Confirm that all three required inputs are received: script text, image files, and voiceover audio track. The AI Agent enters a structured thinking state (reasoning through input validation, acoustic waveform analysis, and sequence alignment before execution).
+## Step 1: Put Audio on Timeline & Initialize Thinking
+First and foremost, place the primary voiceover audio track on the timeline. Then, the AI Agent enters a structured thinking state (reasoning through input validation, acoustic waveform analysis, and sequence alignment before execution).
 
 ## Step 2: OpenAI Whisper STT Word-Level Transcription
 Run the voiceover audio through OpenAI Whisper STT (Large-v3 / API) configured for forced alignment to return word-level timestamps (exact start and end time of every individual spoken word).
 
-## Step 3: Match Images to Script Anchor Phrases
-Each image's filename is a short anchor phrase (typically the first ~5 words of a sentence in the script). Search the script text to locate each image's anchor phrase sequentially. The remaining words in a sentence belong to that same image until the next anchor phrase begins.
+## Step 3: Clean Filenames & Match to Script Anchor Phrases
+Each image's filename is a short anchor phrase (capped at a maximum of 5 words). Ignore the file extension and completely strip out any trailing random numbers or timestamps (e.g., \`_2K_20260916164450\`). Search the master script text sequentially to locate exactly where each cleaned 5-word anchor phrase occurs.
 
 ## Step 4: Sequence the Images
 Order images in the exact order their anchor phrases appear in the script from start to finish.
 
-## Step 5: Assign Timing to Each Image using Whisper
-Set each image's start time to the Whisper timestamp where its anchor phrase begins being spoken. Set end time to where the next anchor phrase starts.
+## Step 5: Calculate Durations & Assign Timings
+Set each image's start time to the timestamp where its anchor phrase begins. To determine the exact length/duration of Image 1, you must look at where the actual sentence for Image 2 begins in the script. Image 1 must stretch and cover the entire distance on the timeline until Image 2 begins. Calculate these durations based on the pacing of the words.
 
-## Step 6: Confirm Full Timed Sequence
-Ensure zero gaps and continuous timeline coverage from start to finish.
+## Step 6: Execute & Confirm Full Timed Sequence
+Execute the actual JSON \`add_clip\` operations to place the images on the timeline. Ensure zero gaps and continuous timeline coverage from start to finish.
 
 ## Step 7: Apply Rich Motion Varieties
 Cycle clips through diverse motion varieties:
