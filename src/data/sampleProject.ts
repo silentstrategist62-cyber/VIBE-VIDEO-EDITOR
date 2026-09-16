@@ -240,17 +240,35 @@ Futuristic minimalist laboratory with marble surfaces and holographic floating f
 Golden dawn breaking over a vast mountain peak summit, high contrast silhouette looking toward the horizon, inspirational aesthetic, 9:16 portrait.`;
 
 /**
- * Creates the initial loaded project matching the master specification
+ * Creates an entirely empty project with no placeholder assets or timeline items
  */
 export function createInitialDemoProject(): ProjectDocument {
-  const result = runAutonomousAssembly({
-    presetId: 'strategist-longform',
-    projectName: 'Kitchen_Final',
-    scriptText: SAMPLE_SCRIPT_TEXT,
-    audioAsset: SAMPLE_AUDIO_ASSET,
-    imageAssets: SAMPLE_IMAGE_ASSETS,
-    promptsText: SAMPLE_PROMPTS_TEXT,
-  });
-
-  return result.project;
+  return {
+    projectId: 'vibe-empty-project',
+    name: 'Untitled Project',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    settings: {
+      aspectRatio: '9:16',
+      resolution: { width: 1080, height: 1920 },
+      fps: 30,
+    },
+    manifest: {
+      version: 1,
+      lastSaved: new Date().toISOString(),
+      author: 'User',
+      dependencies: []
+    },
+    timeline: {
+      duration: 30, // Default base length
+      tracks: [
+        { id: 'V1', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 1' },
+        { id: 'V2', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 2' },
+        { id: 'A1', type: 'audio', clips: [], locked: false, hidden: false, name: 'Audio 1' },
+      ],
+    },
+    assets: {},
+    history: { past: [], present: null as any, future: [] },
+    chatLog: [],
+  };
 }
