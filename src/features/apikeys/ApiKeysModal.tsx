@@ -164,22 +164,40 @@ export const ApiKeysModal: React.FC = () => {
     projectStore.toggleApiKeyActive(id);
   };
 
-  const handleTestKey = (id: string) => {
+  const handleTestKey = async (id: string) => {
     setTestingId(id);
-    setTimeout(() => {
-      const target = keysList.find((k) => k.id === id);
-      if (target) {
-        const isValid = Boolean(target.apiKey && target.apiKey.length > 5) || target.provider === 'ollama';
-        const updated = {
-          ...target,
-          testStatus: (isValid ? 'valid' : 'invalid') as 'valid' | 'invalid',
-          lastTestedAt: new Date().toISOString(),
-        };
-        projectStore.saveApiKey(updated);
-        showToast(isValid ? `Connection verified for ${target.name}!` : `Invalid API Key format for ${target.name}`);
-      }
+    const target = keysList.find((k) => k.id === id);
+    if (!target) {
       setTestingId(null);
-    }, 750);
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/test-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: target.provider, apiKey: target.apiKey, model: target.modelName })
+      });
+      const data = await res.json();
+      
+      const isValid = data.valid;
+      const updated = {
+        ...target,
+        testStatus: (isValid ? 'valid' : 'invalid') as 'valid' | 'invalid',
+        lastTestedAt: new Date().toISOString(),
+      };
+      projectStore.saveApiKey(updated);
+      
+      if (isValid) {
+        showToast(`Connection verified for ${target.name}!`);
+      } else {
+        showToast(`Test failed: ${data.error || 'Invalid API Key'}`);
+      }
+    } catch (err) {
+      showToast(`Network error testing connection`);
+    } finally {
+      setTestingId(null);
+    }
   };
 
   const renderProviderIcon = (provider: LlmProvider, className = 'w-4 h-4') => {

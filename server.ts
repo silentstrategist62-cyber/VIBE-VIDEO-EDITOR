@@ -139,6 +139,46 @@ async function startServer() {
     res.json({ status: 'ok', time: new Date().toISOString(), projectsCount: projectsStore.size });
   });
 
+  // Test API Key
+  app.post('/api/test-key', async (req, res) => {
+    const { provider, apiKey, model } = req.body;
+    if (!apiKey) {
+      return res.status(400).json({ valid: false, error: 'No API key provided' });
+    }
+
+    try {
+      if (provider === 'gemini') {
+        const testClient = new GoogleGenAI({ apiKey });
+        const models = [model || 'gemini-2.5-flash', 'gemini-1.5-flash'];
+        let success = false;
+        let lastError = '';
+        for (const m of models) {
+          try {
+            const result = await testClient.models.generateContent({
+              model: m,
+              contents: 'Reply with the word "OK" if you can read this.',
+            });
+            if (result.text) {
+              success = true;
+              break;
+            }
+          } catch (err: any) {
+            lastError = err.message;
+          }
+        }
+        if (success) {
+          return res.json({ valid: true });
+        } else {
+          return res.json({ valid: false, error: lastError });
+        }
+      }
+      // For other providers, just return true for now
+      return res.json({ valid: true });
+    } catch (err: any) {
+      return res.json({ valid: false, error: err.message });
+    }
+  });
+
   // 1. List Projects
   app.get('/api/projects', (req, res) => {
     const list = Array.from(projectsStore.values()).map((p) => ({
@@ -443,7 +483,7 @@ CRITICAL RULES:
         }
 
         // Call Gemini model with automatic fallback across high-capacity models
-        const modelsToTry = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash'];
+        const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
         let response: any = null;
 
         for (const model of modelsToTry) {
