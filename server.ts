@@ -433,12 +433,12 @@ CLIPS: ${JSON.stringify(timelineClips)}
 MEDIA BIN: ${JSON.stringify(availableAssets)}
 
 ENFORCED WORKFLOW FOR VIDEO ASSEMBLY:
-Regardless of the skill deployed, you MUST follow this strict step-by-step assembly workflow when creating a video from scratch:
+If (and ONLY if) the user explicitly asks you to build, assemble, or create a video from scratch, you MUST follow this strict step-by-step assembly workflow. Otherwise, behave as a helpful, conversational co-editor and answer their questions naturally without forcing this workflow:
 STEP 1 - CONFIRM INPUTS: Look at the MEDIA BIN and the chat history. In your "message", you MUST report back whether you see the script, audio, images, and videos in your radar.
 STEP 2 - SEPARATE MEDIA: In your "thinking", separate image media from audio media.
-STEP 3 - EXTRACT & CLEAN NAMES: Extract the filenames. Clean the image filenames by removing underscores, trailing numbers, and timestamps (e.g., "The_printing_company_shipped_him_2K_20260916164450" becomes "The printing company shipped him").
-STEP 4 - ORGANIZE CHRONOLOGICALLY: Organize the cleaned image names in the exact chronological order of the script. Note: Image names are capped at a maximum of 5 words, so they are cut off snippets of the script. Store this ordered list in your thinking.
-STEP 5 - PLACE AUDIO & TRANSCRIBE: Use "add_clip" to put the audio on the timeline. If you do not have the word-level transcript yet, you MUST emit the "request_transcription" operation simultaneously to send the audio to Whisper. Wait for the transcript to be returned in the next turn.
+STEP 3 - EXTRACT & CLEAN NAMES: Extract the filenames. Clean the image filenames by removing underscores, trailing numbers, and timestamps.
+STEP 4 - ORGANIZE CHRONOLOGICALLY: Organize the cleaned image names in the exact chronological order of the script. Store this ordered list in your thinking.
+STEP 5 - PLACE AUDIO & TRANSCRIBE: Use "add_clip" to put the audio on the timeline. If you do not have the word-level transcript yet, you MUST emit the "request_transcription" operation simultaneously.
 STEP 6 - COMPARE & PLACE IMAGES: Once you receive the transcript, compare it against your organized image list. Place the images on the timeline in order ("add_clip").
 STEP 7 - EXACT DURATIONS (STRETCH/CONTRACT): Calculate the exact duration for each image. The duration of Image 1 must stretch exactly to the start time of where the sentence for Image 2 begins in the transcript.
 STEP 8 - APPLY CAPTIONS: Use the transcript and skill rules to generate and style captions.
@@ -567,12 +567,12 @@ YOUR ROLE & HOW YOU COMMUNICATE:
 - If the user mentions a specific SKILL by name, you MUST read its rules completely from the context below and apply them flawlessly.
 
 ENFORCED WORKFLOW FOR VIDEO ASSEMBLY:
-Regardless of the skill deployed, you MUST follow this strict step-by-step assembly workflow when creating a video from scratch:
+If (and ONLY if) the user explicitly asks you to build, assemble, or create a video from scratch, you MUST follow this strict step-by-step assembly workflow. Otherwise, behave as a helpful, conversational co-editor and answer their questions naturally without forcing this workflow:
 STEP 1 - CONFIRM INPUTS: Look at the MEDIA BIN and the chat history. In your "message", you MUST report back whether you see the script, audio, images, and videos in your radar.
 STEP 2 - SEPARATE MEDIA: In your "thinking", separate image media from audio media.
-STEP 3 - EXTRACT & CLEAN NAMES: Extract the filenames. Clean the image filenames by removing underscores, trailing numbers, and timestamps (e.g., "The_printing_company_shipped_him_2K_20260916164450" becomes "The printing company shipped him").
-STEP 4 - ORGANIZE CHRONOLOGICALLY: Organize the cleaned image names in the exact chronological order of the script. Note: Image names are capped at a maximum of 5 words, so they are cut off snippets of the script. Store this ordered list in your thinking.
-STEP 5 - PLACE AUDIO & TRANSCRIBE: Use "add_clip" to put the audio on the timeline. If you do not have the word-level transcript yet, you MUST emit the "request_transcription" operation simultaneously to send the audio to Whisper. Wait for the transcript to be returned in the next turn.
+STEP 3 - EXTRACT & CLEAN NAMES: Extract the filenames. Clean the image filenames by removing underscores, trailing numbers, and timestamps.
+STEP 4 - ORGANIZE CHRONOLOGICALLY: Organize the cleaned image names in the exact chronological order of the script. Store this ordered list in your thinking.
+STEP 5 - PLACE AUDIO & TRANSCRIBE: Use "add_clip" to put the audio on the timeline. If you do not have the word-level transcript yet, you MUST emit the "request_transcription" operation simultaneously.
 STEP 6 - COMPARE & PLACE IMAGES: Once you receive the transcript, compare it against your organized image list. Place the images on the timeline in order ("add_clip").
 STEP 7 - EXACT DURATIONS (STRETCH/CONTRACT): Calculate the exact duration for each image. The duration of Image 1 must stretch exactly to the start time of where the sentence for Image 2 begins in the transcript.
 STEP 8 - APPLY CAPTIONS: Use the transcript and skill rules to generate and style captions.
