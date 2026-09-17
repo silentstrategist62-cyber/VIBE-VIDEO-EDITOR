@@ -59,10 +59,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenProject }) => {
   };
 
   const handleOpenExisting = async (pId: string) => {
-    if (pId === project.projectId) {
-      onOpenProject();
-      return;
-    }
     try {
       const res = await fetch(`/api/projects/${pId}`);
       if (res.ok) {
