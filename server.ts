@@ -171,9 +171,23 @@ async function startServer() {
         return res.json({ valid: false, error: `All Gemini models failed. Last error: ${lastError}` });
       }
 
-      if (provider === 'groq' || provider === 'openrouter') {
-        const endpoint = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions';
-        const modelToUse = model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'meta-llama/llama-3.3-70b-instruct:free');
+      if (['groq', 'openrouter', 'openai', 'deepseek'].includes(provider)) {
+        let endpoint = '';
+        let modelToUse = model;
+        if (provider === 'groq') {
+          endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+          modelToUse = model || 'llama-3.3-70b-versatile';
+        } else if (provider === 'openrouter') {
+          endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+          modelToUse = model || 'google/gemini-2.5-flash:free';
+        } else if (provider === 'openai') {
+          endpoint = 'https://api.openai.com/v1/chat/completions';
+          modelToUse = model || 'gpt-4o-mini';
+        } else if (provider === 'deepseek') {
+          endpoint = 'https://api.deepseek.com/chat/completions';
+          modelToUse = model || 'deepseek-chat';
+        }
+
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
@@ -387,7 +401,7 @@ async function startServer() {
     const groqKey = apiKeyConfig?.provider === 'groq' && apiKeyConfig.apiKey ? apiKeyConfig.apiKey.trim() : process.env.GROQ_API_KEY;
     const client = getAiClientForKey(geminiKey) || getAiClient();
     const provider = apiKeyConfig?.provider || 'gemini';
-    const usingCustomLlm = provider === 'groq' || provider === 'openrouter';
+    const usingCustomLlm = ['groq', 'openrouter', 'openai', 'deepseek'].includes(provider);
     const customKey = apiKeyConfig?.apiKey?.trim() || '';
 
     console.log(`[LLM] Provider: ${provider}, key-len: ${(geminiKey || customKey || '').length}`);
@@ -397,7 +411,7 @@ async function startServer() {
     let llmHandled = false;
     let lastModelError = '';
 
-    // --- GROQ / OPENROUTER BRANCH ---
+    // --- OPENAI-COMPATIBLE BRANCH (Groq, OpenRouter, OpenAI, DeepSeek) ---
     if (usingCustomLlm && customKey) {
       try {
         const customSkillsSection = activeSkills.length > 0
@@ -424,10 +438,22 @@ add_clip format: {"op":"add_clip","clip":{"clipId":"<unique>","assetId":"<from m
           { role: 'user', content: instruction },
         ];
 
-        const endpoint = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions';
-        const customModels = provider === 'groq' 
-          ? ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'] 
-          : ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free', 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free'];
+        let endpoint = '';
+        let customModels: string[] = [];
+
+        if (provider === 'groq') {
+          endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+          customModels = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'];
+        } else if (provider === 'openrouter') {
+          endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+          customModels = ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free', 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free'];
+        } else if (provider === 'openai') {
+          endpoint = 'https://api.openai.com/v1/chat/completions';
+          customModels = [apiKeyConfig?.modelName || 'gpt-4o', 'gpt-4o-mini'];
+        } else if (provider === 'deepseek') {
+          endpoint = 'https://api.deepseek.com/chat/completions';
+          customModels = ['deepseek-chat', 'deepseek-reasoner'];
+        }
 
         for (const model of customModels) {
           try {
