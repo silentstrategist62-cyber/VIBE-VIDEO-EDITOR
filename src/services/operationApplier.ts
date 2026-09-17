@@ -892,6 +892,13 @@ export function applyOperation(
       break;
     }
 
+    case 'request_transcription': {
+      // This is a side-effect operation handled by projectStore.ts
+      // We just pass it through without mutating the document.
+      inverse = { op: 'request_transcription', assetId: operation.assetId };
+      break;
+    }
+
     default:
       throw new Error(`Unsupported operation: ${(operation as any).op}`);
   }
