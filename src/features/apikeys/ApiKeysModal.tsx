@@ -180,7 +180,7 @@ export const ApiKeysModal: React.FC = () => {
       const res = await fetch('/api/test-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: target.provider, apiKey: target.apiKey, model: target.modelName })
+        body: JSON.stringify({ provider: target.provider, apiKey: target.apiKey, model: target.modelName, baseUrl: target.baseUrl })
       });
       const data = await res.json();
       
@@ -355,19 +355,19 @@ export const ApiKeysModal: React.FC = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-zinc-400 font-medium mb-1">Target Model ID</label>
+                <div className="sm:col-span-1">
+                  <label className="block text-zinc-400 font-medium mb-1">Model String</label>
                   <input
                     type="text"
                     value={formModel}
                     onChange={(e) => setFormModel(e.target.value)}
-                    placeholder="e.g. gemini-2.5-flash or gpt-4o"
-                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+                    placeholder="e.g. gpt-4o, gemini-2.5-flash"
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-zinc-400 font-medium mb-1">Base URL (Optional)</label>
+                <div className="sm:col-span-1">
+                  <label className="block text-zinc-400 font-medium mb-1">Base URL <span className="text-zinc-600 font-normal">(Optional proxy)</span></label>
                   <input
                     type="text"
                     value={formBaseUrl}

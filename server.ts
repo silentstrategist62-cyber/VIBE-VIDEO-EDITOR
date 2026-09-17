@@ -175,16 +175,16 @@ async function startServer() {
         let endpoint = '';
         let modelToUse = model;
         if (provider === 'groq') {
-          endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+          endpoint = baseUrl || 'https://api.groq.com/openai/v1/chat/completions';
           modelToUse = model || 'llama-3.3-70b-versatile';
         } else if (provider === 'openrouter') {
-          endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+          endpoint = baseUrl || 'https://openrouter.ai/api/v1/chat/completions';
           modelToUse = model || 'google/gemini-2.5-flash:free';
         } else if (provider === 'openai') {
-          endpoint = 'https://api.openai.com/v1/chat/completions';
+          endpoint = baseUrl || 'https://api.openai.com/v1/chat/completions';
           modelToUse = model || 'gpt-4o-mini';
         } else if (provider === 'deepseek') {
-          endpoint = 'https://api.deepseek.com/chat/completions';
+          endpoint = baseUrl || 'https://api.deepseek.com/chat/completions';
           modelToUse = model || 'deepseek-chat';
         }
 
@@ -454,17 +454,17 @@ request_transcription format: {"op":"request_transcription","assetId":"<audio-as
         let customModels: string[] = [];
 
         if (provider === 'groq') {
-          endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-          customModels = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'];
+          endpoint = apiKeyConfig?.baseUrl || 'https://api.groq.com/openai/v1/chat/completions';
+          customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'];
         } else if (provider === 'openrouter') {
-          endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-          customModels = ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free', 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free'];
+          endpoint = apiKeyConfig?.baseUrl || 'https://openrouter.ai/api/v1/chat/completions';
+          customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free'];
         } else if (provider === 'openai') {
-          endpoint = 'https://api.openai.com/v1/chat/completions';
-          customModels = [apiKeyConfig?.model || 'gpt-4o', 'gpt-4o-mini'];
+          endpoint = apiKeyConfig?.baseUrl || 'https://api.openai.com/v1/chat/completions';
+          customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['gpt-4o', 'gpt-4o-mini'];
         } else if (provider === 'deepseek') {
-          endpoint = 'https://api.deepseek.com/chat/completions';
-          customModels = ['deepseek-chat', 'deepseek-reasoner'];
+          endpoint = apiKeyConfig?.baseUrl || 'https://api.deepseek.com/chat/completions';
+          customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['deepseek-chat', 'deepseek-reasoner'];
         }
 
         for (const model of customModels) {
