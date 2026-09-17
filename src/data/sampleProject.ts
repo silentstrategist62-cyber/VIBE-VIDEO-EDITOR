@@ -260,9 +260,9 @@ export function createInitialDemoProject(): ProjectDocument {
     timeline: {
       duration: 30, // Default base length
       tracks: [
-        { trackId: 'V1', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 1' },
-        { trackId: 'V2', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 2' },
-        { trackId: 'A1', type: 'audio', clips: [], locked: false, hidden: false, name: 'Audio 1' },
+        { trackId: 'V1', type: 'video', clips: [], locked: false, name: 'Video 1' },
+        { trackId: 'V2', type: 'video', clips: [], locked: false, name: 'Video 2' },
+        { trackId: 'A1', type: 'audio', clips: [], locked: false, name: 'Audio 1' },
       ],
     },
     assets: {},
