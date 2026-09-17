@@ -1271,16 +1271,71 @@ export const projectStore = {
       }
 
       const data = await res.json();
+      
+      let pendingTranscriptionAssetId: string | null = null;
+      if (Array.isArray(data.operations)) {
+        const transcribeOp = data.operations.find((op: any) => op.op === 'request_transcription');
+        if (transcribeOp && transcribeOp.assetId) {
+          pendingTranscriptionAssetId = transcribeOp.assetId;
+        }
+      }
+
       if (data.project) {
         state = {
           ...state,
           project: data.project,
-          isPromptLoading: false,
+          isPromptLoading: !pendingTranscriptionAssetId ? false : true,
         };
         notify();
       } else {
-        state = { ...state, isPromptLoading: false };
+        state = { ...state, isPromptLoading: !pendingTranscriptionAssetId ? false : true };
         notify();
+      }
+
+      // If transcription was requested, run it locally and recursively trigger the AI again
+      if (pendingTranscriptionAssetId) {
+        const asset = state.project.assets[pendingTranscriptionAssetId];
+        if (asset && asset.url && activeKey) {
+          try {
+             const resp = await fetch(asset.url);
+             const blob = await resp.blob();
+             const reader = new FileReader();
+             const base64Audio = await new Promise<string>((resolve) => {
+               reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+               reader.readAsDataURL(blob);
+             });
+             
+             const transcribeRes = await fetch('/api/transcribe', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ audioBase64: base64Audio, mimeType: blob.type, apiKey: activeKey.apiKey }),
+             });
+             
+             if (transcribeRes.ok) {
+                const trData = await transcribeRes.json();
+                const transcriptText = trData.transcript;
+                
+                if (transcriptText) {
+                  // Recursively prompt the AI with the transcript so it can finish its job
+                  const followUp = `SYSTEM LOG: You requested transcription for asset ${asset.filename}. Here is the complete transcript of the spoken words:\n\n"${transcriptText}"\n\nPlease proceed to match images to these words and generate the exact timeline operations to assemble the cut based on your skills.`;
+                  await this.runPromptEdit(followUp);
+                } else {
+                  state = { ...state, isPromptLoading: false };
+                  notify();
+                }
+             } else {
+                state = { ...state, isPromptLoading: false };
+                notify();
+             }
+          } catch (e) {
+             console.error("Agentic transcription failed:", e);
+             state = { ...state, isPromptLoading: false };
+             notify();
+          }
+        } else {
+          state = { ...state, isPromptLoading: false };
+          notify();
+        }
       }
     } catch (err: any) {
       console.error('Prompt handler failed:', err);

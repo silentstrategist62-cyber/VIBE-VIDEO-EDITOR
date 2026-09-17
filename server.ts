@@ -426,9 +426,10 @@ MEDIA BIN: ${JSON.stringify(availableAssets)}
 
 OUTPUT: ONLY a valid JSON object: {"thinking":"<step-by-step reasoning>","message":"<response to user>","operations":[<Operation objects or []>]}
 
-OPERATIONS: add_clip, trim_clip, delete_clip, move_clip, split_clip, set_speed, add_transition, remove_transition, set_transform, set_adjust, set_volume, add_keyframe, batch_operations.
+OPERATIONS: add_clip, trim_clip, delete_clip, move_clip, split_clip, set_speed, add_transition, remove_transition, set_transform, set_adjust, set_volume, add_keyframe, request_transcription, batch_operations.
 
-add_clip format: {"op":"add_clip","clip":{"clipId":"<unique>","assetId":"<from media bin>","trackId":"V1","startTime":<s>,"duration":<s>,"sourceIn":0,"sourceOut":<s>,"transform":{"scale":1,"positionX":0,"positionY":0,"opacity":100},"keyframes":[]}}${customSkillsSection}`;
+add_clip format: {"op":"add_clip","clip":{"clipId":"<unique>","assetId":"<from media bin>","trackId":"V1","startTime":<s>,"duration":<s>,"sourceIn":0,"sourceOut":<s>,"transform":{"scale":1,"positionX":0,"positionY":0,"opacity":100},"keyframes":[]}}
+request_transcription format: {"op":"request_transcription","assetId":"<audio-asset-id>"} (Use this FIRST if you need to read the spoken words of an audio file to align images to it. The system will auto-transcribe and return the text to you).${customSkillsSection}`;
 
         const customMessages = [
           { role: 'system', content: customSystemPrompt },
@@ -577,6 +578,8 @@ SUPPORTED TIMELINE OPERATIONS:
     { "op": "execute_skill_action", "actionType": "cut"|"add_transition"|"add_caption"|"insert_broll"|"adjust_pacing"|"apply_color", "variant": "<variant_string>", "clipIds": ["<id1>", "<id2>"], "params": {} }
 14. Add media clip to timeline:
     { "op": "add_clip", "clip": { "clipId": "<unique_id>", "assetId": "<assetId_from_media_bin>", "trackId": "V1", "startTime": <seconds>, "duration": <seconds>, "sourceIn": 0, "sourceOut": <seconds>, "transform": { "scale": 1, "positionX": 0, "positionY": 0, "opacity": 100 }, "keyframes": [] } }
+15. Request Audio Transcription:
+    { "op": "request_transcription", "assetId": "<assetId_from_media_bin>" } (Use this FIRST if you need to read the spoken words of an audio file to align images to it. The system will auto-transcribe and return the text to you).
 
 OUTPUT SPECIFICATION:
 You must output ONLY a valid JSON object matching:

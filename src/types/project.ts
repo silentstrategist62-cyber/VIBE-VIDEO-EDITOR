@@ -394,6 +394,7 @@ export type Operation =
   | { op: 'update_graphic'; clipId: string; graphic: Partial<GraphicElement>; previousGraphic?: GraphicElement }
   | { op: 'update_text_overlay'; clipId: string; textOverlay: Partial<TextOverlayElement>; previousTextOverlay?: TextOverlayElement }
   | { op: 'add_clip'; clip: Clip }
+  | { op: 'request_transcription'; assetId: string }
   | { op: 'batch_operations'; operations: Operation[]; description?: string };
 
 export interface WorkflowPreset {
