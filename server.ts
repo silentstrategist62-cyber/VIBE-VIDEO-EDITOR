@@ -229,7 +229,7 @@ async function startServer() {
   // 0.5 Audio Transcription (Whisper)
   app.post('/api/transcribe', async (req, res) => {
     try {
-      const { audioBase64, mimeType, apiKey, provider, baseUrl } = req.body;
+      const { audioBase64, mimeType, apiKey, provider, baseUrl, fallbackGroqKey, fallbackOpenAIKey } = req.body;
       if (!audioBase64) return res.status(400).json({ error: 'Missing audioBase64' });
 
       // Determine the best transcription endpoint
@@ -243,15 +243,15 @@ async function startServer() {
       } else if (provider === 'openai') {
         endpoint = 'https://api.openai.com/v1/audio/transcriptions';
       } else {
-        // Fallback: If they are using DeepSeek or Gemini (which don't natively have /audio/transcriptions easily exposed like OpenAI),
-        // we'll try to use Groq if they have a groq key in env, or OpenAI if they have an openai key in env.
-        if (process.env.GROQ_API_KEY) {
+        // Fallback: If they are using DeepSeek or Gemini (which don't natively have /audio/transcriptions),
+        // we'll try to use Groq/OpenAI if they passed a fallback key from the UI, or from env.
+        if (fallbackGroqKey || process.env.GROQ_API_KEY) {
           endpoint = 'https://api.groq.com/openai/v1/audio/transcriptions';
           model = 'whisper-large-v3';
-          activeKey = process.env.GROQ_API_KEY;
-        } else if (process.env.OPENAI_API_KEY) {
+          activeKey = fallbackGroqKey || process.env.GROQ_API_KEY;
+        } else if (fallbackOpenAIKey || process.env.OPENAI_API_KEY) {
           endpoint = 'https://api.openai.com/v1/audio/transcriptions';
-          activeKey = process.env.OPENAI_API_KEY;
+          activeKey = fallbackOpenAIKey || process.env.OPENAI_API_KEY;
         } else {
           return res.status(400).json({ error: 'Audio transcription requires an OpenAI or Groq API key. DeepSeek/Gemini do not natively support the Whisper endpoint in this app.' });
         }

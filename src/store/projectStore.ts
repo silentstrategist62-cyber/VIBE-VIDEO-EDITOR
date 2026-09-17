@@ -1305,10 +1305,22 @@ export const projectStore = {
                reader.readAsDataURL(blob);
              });
              
+             // Find if they saved a Groq or OpenAI key in the UI settings
+             const groqKeyObj = state.apiKeys?.find(k => k.provider === 'groq' && k.apiKey);
+             const openaiKeyObj = state.apiKeys?.find(k => k.provider === 'openai' && k.apiKey);
+             
              const transcribeRes = await fetch('/api/transcribe', {
                method: 'POST',
                headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ audioBase64: base64Audio, mimeType: blob.type, apiKey: activeKey.apiKey, provider: activeKey.provider, baseUrl: activeKey.baseUrl }),
+               body: JSON.stringify({ 
+                 audioBase64: base64Audio, 
+                 mimeType: blob.type, 
+                 apiKey: activeKey.apiKey, 
+                 provider: activeKey.provider, 
+                 baseUrl: activeKey.baseUrl,
+                 fallbackGroqKey: groqKeyObj?.apiKey,
+                 fallbackOpenAIKey: openaiKeyObj?.apiKey
+               }),
              });
              
              if (transcribeRes.ok) {
