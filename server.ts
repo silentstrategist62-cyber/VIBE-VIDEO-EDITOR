@@ -415,7 +415,7 @@ async function startServer() {
     if (usingCustomLlm && customKey) {
       try {
         const customSkillsSection = activeSkills.length > 0
-          ? '\n\nACTIVE SKILLS:\n' + activeSkills.map((s, idx) => `### SKILL ${idx + 1}: ${s.name}\n${s.rules}`).join('\n\n')
+          ? '\n\nACTIVE SKILLS:\n' + activeSkills.map((s, idx) => `### SKILL ${idx + 1}: ${s.name} [Category: ${s.category.toUpperCase()}]\nTarget Activity: ${s.activity}\nDescription: ${s.description}\nRules:\n${s.rules}`).join('\n\n')
           : '';
 
         const customSystemPrompt = `You are a highly intelligent professional filmmaker and creative co-editor with TOTAL CONTROL over the timeline. DO THE ACTUAL WORK — generate real JSON operations to manipulate the timeline.

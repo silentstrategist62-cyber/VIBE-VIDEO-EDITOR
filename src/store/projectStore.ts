@@ -1282,26 +1282,18 @@ export const projectStore = {
         state = { ...state, isPromptLoading: false };
         notify();
       }
-    } catch (err) {
-      console.warn('Fallback local prompt handler for offline mode:', err);
-      // Natural fallback assistant reply in case of connection drop
-      const lower = instruction.toLowerCase().trim().replace(/[!?.,;]/g, '');
-      const isGreeting = ['hi', 'hello', 'hey', 'greetings', 'yo', 'sup', 'howdy'].some((g) => lower.startsWith(g) || lower === g);
-      const isPurpose = lower.includes('purpose') || lower.includes('who are you') || lower.includes('what are you');
-
-      let reply = "I'm here as your creative partner and co-editor! We can talk through story direction, pacing, shot selection, audio mood, or make adjustments to the timeline whenever you're ready. What are you thinking?";
-      if (isGreeting) {
-        reply = "Hey! Great to collaborate with you on this video. What kind of vision or vibe are you aiming to craft today?";
-      } else if (isPurpose) {
-        reply = "My purpose is to be your creative filmmaking partner and co-editor! Think of me as a trusted collaborator in the editing suite. We can brainstorm ideas about story, rhythm, and tone, or execute edits directly on the timeline.";
-      }
+    } catch (err: any) {
+      console.error('Prompt handler failed:', err);
+      
+      const errorMsg = err.message || 'The server could not be reached. Ensure it is running and you have a valid API key.';
       const assistantFallback: ChatMessage = {
-        id: `chat-a-${Date.now()}`,
+        id: `chat-e-${Date.now()}`,
         role: 'assistant',
-        message: reply,
-        text: reply,
+        message: `⚠️ **Connection Error**\n\nI couldn't reach the AI provider to process your request. \n\n**Details:** ${errorMsg}\n\nPlease check your internet connection, verify your API keys in Settings, and ensure the provider is not currently down.`,
+        text: errorMsg,
         timestamp: new Date().toISOString(),
       };
+      
       state = {
         ...state,
         project: {

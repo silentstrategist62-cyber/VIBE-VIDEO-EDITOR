@@ -78,7 +78,7 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
         // Explicitly ignore the data directory so writing to projects.json does not trigger a full page reload
-        ignored: ['**/data/**', '**/data/*.json', 'data/**', path.resolve(__dirname, 'data')]
+        ignored: ['**/data/**', '**/data/projects.json', '**/data/skills.json', path.resolve(__dirname, 'data') + '/**']
       },
     },
   };
