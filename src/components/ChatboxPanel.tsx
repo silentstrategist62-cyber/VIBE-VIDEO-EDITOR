@@ -34,6 +34,33 @@ import { Clip } from '../types/project';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { EditorSkill } from '../types/skills';
 
+const LOADING_STEPS = [
+  "Formulating timeline execution strategy...",
+  "Running skill rules against current sequence...",
+  "Calculating clip durations and bounds...",
+  "Translating creative intent into JSON operations...",
+  "Awaiting AI model response...",
+  "Analyzing cuts & applying direction...",
+];
+
+function DynamicLoadingIndicator() {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStep((s) => (s + 1) % LOADING_STEPS.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-2 text-cyan-400 text-xs p-3 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse">
+      <Sparkles className="w-4 h-4 animate-spin" />
+      <span>{LOADING_STEPS[step]}</span>
+    </div>
+  );
+}
+
 export const ChatboxPanel: React.FC = () => {
   const { project, isChatOpen, isPromptLoading, skills, activeSkillSession, selectedClipId, floatingPanels, chatPanelWidth } = useProjectStore();
   const isMobile = useIsMobile();
@@ -471,10 +498,7 @@ export const ChatboxPanel: React.FC = () => {
         })}
 
         {isPromptLoading && (
-          <div className="flex items-center gap-2 text-cyan-400 text-xs p-3 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse">
-            <Sparkles className="w-4 h-4 animate-spin" />
-            <span>AI Co-Pilot analyzing cuts & applying direction...</span>
-          </div>
+          <DynamicLoadingIndicator />
         )}
         <div ref={messagesEndRef} />
       </div>
