@@ -29,7 +29,7 @@ export const DEFAULT_API_KEYS: ApiKeyConfig[] = [
     provider: 'openrouter',
     name: 'OpenRouter — Free Models',
     apiKey: '',
-    modelName: 'meta-llama/llama-3.3-70b-instruct:free',
+    modelName: 'google/gemini-2.5-flash:free',
     baseUrl: 'https://openrouter.ai/api/v1',
     isActive: false,
     isDefault: false,

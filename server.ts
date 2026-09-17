@@ -427,7 +427,7 @@ add_clip format: {"op":"add_clip","clip":{"clipId":"<unique>","assetId":"<from m
         const endpoint = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions';
         const customModels = provider === 'groq' 
           ? ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'] 
-          : ['meta-llama/llama-3.3-70b-instruct:free', 'mistralai/mistral-nemo:free'];
+          : ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free', 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free'];
 
         for (const model of customModels) {
           try {
