@@ -519,7 +519,7 @@ request_transcription format: {"op":"request_transcription","assetId":"<audio-as
       }
     }
 
-    if (client && !llmHandled) {
+    if (client && !llmHandled && !usingCustomLlm) {
       try {
         const skillsSection = activeSkills.length > 0
           ? `\n\nUSER-DEFINED SKILLS & EXECUTION RULES (CLAUDE-STYLE):
