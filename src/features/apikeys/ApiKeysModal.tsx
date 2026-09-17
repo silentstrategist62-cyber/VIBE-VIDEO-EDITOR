@@ -123,6 +123,10 @@ export const ApiKeysModal: React.FC = () => {
       showToast('Key name is required');
       return;
     }
+    if (formKey.trim().length < 30) {
+      showToast('⚠️ Warning: your API key looks too short — it may be truncated. Please re-paste the full key.');
+      return;
+    }
 
     const idToUse = editingKey ? editingKey.id : `key-${Date.now()}`;
 

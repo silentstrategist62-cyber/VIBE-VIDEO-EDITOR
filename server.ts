@@ -125,7 +125,10 @@ async function startServer() {
     try {
       return new GoogleGenAI({
         apiKey: keyToUse,
-        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } },
+        httpOptions: { 
+          headers: { 'User-Agent': 'aistudio-build' },
+          apiVersion: 'v1',
+        },
       });
     } catch {
       return null;
@@ -148,8 +151,8 @@ async function startServer() {
 
     try {
       if (provider === 'gemini') {
-        const testClient = new GoogleGenAI({ apiKey });
-        const models = [model || 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.5-flash'];
+        const testClient = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1' } });
+        const models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.5-flash', 'gemini-3.6-flash'];
         let lastError = '';
         for (const m of models) {
           try {
@@ -483,11 +486,13 @@ CRITICAL RULES:
           contents.push({ role: 'user', parts: [{ text: instruction }] });
         }
 
-        // Call Gemini model with automatic fallback. Model IDs verified against live API responses.
+        // Model priority: highest free-tier daily quota first
+        // gemini-1.5-flash: 1500 RPD | gemini-2.5-flash: 500 RPD | gemini-3.6-flash: 20 RPD
         const modelsToTry = [
-          'gemini-3.6-flash',   // Latest recommended by Google API error message
-          'gemini-3.5-flash',   // Fallback
-          'gemini-2.5-flash',   // Fallback (may hit rate limits on free tier)
+          'gemini-1.5-flash',   // 1500 requests/day free
+          'gemini-1.5-flash-latest',
+          'gemini-2.5-flash',   // 500 requests/day free
+          'gemini-3.6-flash',   // 20 requests/day free (last resort)
         ];
         let response: any = null;
 
