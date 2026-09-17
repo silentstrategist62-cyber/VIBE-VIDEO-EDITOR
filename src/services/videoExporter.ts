@@ -6,6 +6,8 @@ export interface ExportOptions {
   height: number;
   fps: number;
   format: 'mp4' | 'webm';
+  quality: 'high' | 'medium' | 'low';
+  muteAudio: boolean;
   onProgress: (progress: number, frame: number, totalFrames: number) => void;
 }
 
@@ -26,7 +28,7 @@ export async function exportVideo(
   project: ProjectDocument,
   options: ExportOptions
 ): Promise<ExportResult> {
-  const { width, height, fps, format, onProgress } = options;
+  const { width, height, fps, format, quality, muteAudio, onProgress } = options;
   const duration = Math.max(1, project.timeline.duration);
   const totalFrames = Math.ceil(duration * fps);
 
@@ -54,71 +56,74 @@ export async function exportVideo(
   let audioStream: MediaStream | null = null;
   let audioCtx: AudioContext | null = null;
 
-  try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (AudioContextClass) {
-      audioCtx = new AudioContextClass();
-      const dest = audioCtx.createMediaStreamDestination();
+  if (!muteAudio) {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+        const dest = audioCtx.createMediaStreamDestination();
 
-      const allAudioClips: Array<{ clip: typeof project.timeline.tracks[0]['clips'][0]; asset: typeof project.assets[string] }> = [];
-      for (const track of project.timeline.tracks) {
-        if (track.muted) continue;
-        for (const clip of track.clips) {
-          const asset = project.assets[clip.assetId];
-          const isMedia = asset?.type === 'video' || asset?.type === 'audio' || !!asset?.filename?.match(/\.(mp4|mov|webm|mkv|avi|flv|m4v|mp3|wav|ogg)$/i);
-          if (asset?.url && isMedia) {
-            allAudioClips.push({ clip, asset });
+        const allAudioClips: Array<{ clip: typeof project.timeline.tracks[0]['clips'][0]; asset: typeof project.assets[string] }> = [];
+        for (const track of project.timeline.tracks) {
+          if (track.muted) continue;
+          for (const clip of track.clips) {
+            const asset = project.assets[clip.assetId];
+            const isMedia = asset?.type === 'video' || asset?.type === 'audio' || !!asset?.filename?.match(/\.(mp4|mov|webm|mkv|avi|flv|m4v|mp3|wav|ogg)$/i);
+            if (asset?.url && isMedia) {
+              allAudioClips.push({ clip, asset });
+            }
           }
         }
-      }
 
-      let hasRealAudio = false;
-      for (const { clip, asset } of allAudioClips) {
-        try {
-          const resp = await fetch(asset.url);
-          const arrayBuffer = await resp.arrayBuffer();
-          const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        let hasRealAudio = false;
+        for (const { clip, asset } of allAudioClips) {
+          try {
+            const resp = await fetch(asset.url);
+            const arrayBuffer = await resp.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-          const source = audioCtx.createBufferSource();
-          source.buffer = audioBuffer;
+            const source = audioCtx.createBufferSource();
+            source.buffer = audioBuffer;
 
-          const speed = clip.audio?.speed ?? 1.0;
-          source.playbackRate.value = Math.max(0.25, Math.min(4.0, speed));
+            const speed = clip.audio?.speed ?? 1.0;
+            source.playbackRate.value = Math.max(0.25, Math.min(4.0, speed));
 
-          const rawVol = clip.audio?.volume ?? 0;
-          const linearVol = rawVol <= -60 ? 0 : Math.pow(10, rawVol / 20);
-          const gainNode = audioCtx.createGain();
-          gainNode.gain.value = linearVol;
+            const rawVol = clip.audio?.volume ?? 0;
+            const linearVol = rawVol <= -60 ? 0 : Math.pow(10, rawVol / 20);
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = linearVol;
 
-          const fadeIn = clip.audio?.fadeIn ?? 0;
-          if (fadeIn > 0) {
-            gainNode.gain.setValueAtTime(0, clip.startTime);
-            gainNode.gain.linearRampToValueAtTime(linearVol, clip.startTime + fadeIn);
+            const fadeIn = clip.audio?.fadeIn ?? 0;
+            if (fadeIn > 0) {
+              gainNode.gain.setValueAtTime(0, clip.startTime);
+              gainNode.gain.linearRampToValueAtTime(linearVol, clip.startTime + fadeIn);
+            }
+
+            const fadeOut = clip.audio?.fadeOut ?? 0;
+            const clipEnd = clip.startTime + clip.duration;
+            if (fadeOut > 0) {
+              gainNode.gain.setValueAtTime(linearVol, clipEnd - fadeOut);
+              gainNode.gain.linearRampToValueAtTime(0, clipEnd);
+            }
+
+            gainNode.connect(dest);
+            source.connect(gainNode);
+            // Fix audio sync: play the audio at the correct relative time for MediaRecorder
+            source.start(0, clip.sourceIn);
+            source.stop(clip.duration);
+            hasRealAudio = true;
+          } catch (err) {
+            console.warn('Failed to encode audio clip in export:', clip.assetId, err);
           }
+        }
 
-          const fadeOut = clip.audio?.fadeOut ?? 0;
-          const clipEnd = clip.startTime + clip.duration;
-          if (fadeOut > 0) {
-            gainNode.gain.setValueAtTime(linearVol, clipEnd - fadeOut);
-            gainNode.gain.linearRampToValueAtTime(0, clipEnd);
-          }
-
-          gainNode.connect(dest);
-          source.connect(gainNode);
-          source.start(0, clip.sourceIn);
-          source.stop(clip.duration);
-          hasRealAudio = true;
-        } catch (err) {
-          console.warn('Failed to encode audio clip in export:', clip.assetId, err);
+        if (hasRealAudio) {
+          audioStream = dest.stream;
         }
       }
-
-      if (hasRealAudio) {
-        audioStream = dest.stream;
-      }
+    } catch (err) {
+      console.warn('Audio export context initialization skipped:', err);
     }
-  } catch (err) {
-    console.warn('Audio export context initialization skipped:', err);
   }
 
   try {
@@ -150,7 +155,11 @@ export async function exportVideo(
       }
     }
 
-    const videoBitsPerSecond = width >= 1080 ? 8_000_000 : 4_000_000;
+    // Adjust bitrate based on selected quality
+    const baseBits = width >= 2160 ? 15_000_000 : width >= 1080 ? 8_000_000 : 4_000_000;
+    let videoBitsPerSecond = baseBits;
+    if (quality === 'high') videoBitsPerSecond = baseBits * 1.5;
+    if (quality === 'low') videoBitsPerSecond = Math.max(1_000_000, baseBits * 0.25); // high compression
 
     const recorder = new MediaRecorder(combinedStream, {
       mimeType: selectedMimeType,

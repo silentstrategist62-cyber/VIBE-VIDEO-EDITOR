@@ -18,9 +18,11 @@ import { exportVideo, ExportResult } from '../services/videoExporter';
 export const ExportModal: React.FC = () => {
   const { project, isExportOpen } = useProjectStore();
 
-  const [resolution, setResolution] = useState<'1080x1920' | '720x1280'>('1080x1920');
+  const [resolution, setResolution] = useState<'1440x2560' | '1080x1920' | '720x1280'>('1080x1920');
   const [fps, setFps] = useState<30 | 60>(30);
   const [format, setFormat] = useState<'mp4' | 'webm'>('mp4');
+  const [quality, setQuality] = useState<'high' | 'medium' | 'low'>('medium');
+  const [muteAudio, setMuteAudio] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -48,6 +50,8 @@ export const ExportModal: React.FC = () => {
         height,
         fps,
         format,
+        quality,
+        muteAudio,
         onProgress: (pct, frame, total) => {
           setRenderProgress(pct);
           setCurrentFrame(frame);
@@ -142,7 +146,19 @@ export const ExportModal: React.FC = () => {
             <div className="space-y-4 text-xs">
               <div>
                 <label className="text-slate-300 font-semibold mb-1.5 block">Resolution</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setResolution('1440x2560')}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      resolution === '1440x2560'
+                        ? 'border-emerald-500 bg-emerald-950/20 text-white font-bold shadow-sm shadow-emerald-500/10'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div>1440 × 2560</div>
+                    <span className="text-[10px] text-slate-500 font-normal">2K Quality</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setResolution('1080x1920')}
@@ -152,8 +168,8 @@ export const ExportModal: React.FC = () => {
                         : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    <div>1080 × 1920 (FHD)</div>
-                    <span className="text-[10px] text-slate-500 font-normal">Full High Definition</span>
+                    <div>1080 × 1920</div>
+                    <span className="text-[10px] text-slate-500 font-normal">FHD (Standard)</span>
                   </button>
                   <button
                     type="button"
@@ -164,13 +180,13 @@ export const ExportModal: React.FC = () => {
                         : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    <div>720 × 1280 (HD)</div>
-                    <span className="text-[10px] text-slate-500 font-normal">Ultra Fast Export</span>
+                    <div>720 × 1280</div>
+                    <span className="text-[10px] text-slate-500 font-normal">HD (Fast/Light)</span>
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-slate-300 font-semibold mb-1.5 block">Frame Rate</label>
                   <select
@@ -178,21 +194,38 @@ export const ExportModal: React.FC = () => {
                     onChange={(e) => setFps(parseInt(e.target.value) as any)}
                     className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                   >
-                    <option value={30}>30 fps (Standard)</option>
-                    <option value={60}>60 fps (High Motion)</option>
+                    <option value={30}>30 fps</option>
+                    <option value={60}>60 fps</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold mb-1.5 block">Format / Container</label>
+                  <label className="text-slate-300 font-semibold mb-1.5 block">Compression</label>
                   <select
-                    value={format}
-                    onChange={(e) => setFormat(e.target.value as any)}
+                    value={quality}
+                    onChange={(e) => setQuality(e.target.value as any)}
                     className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                   >
-                    <option value="mp4">MP4 (Universal)</option>
-                    <option value="webm">WebM (Fastest)</option>
+                    <option value="high">High (Large File)</option>
+                    <option value="medium">Medium (Standard)</option>
+                    <option value="low">Low (Small File)</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="text-slate-300 font-semibold mb-1.5 block">Audio</label>
+                  <button
+                    type="button"
+                    onClick={() => setMuteAudio(!muteAudio)}
+                    className={`w-full p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      muteAudio
+                        ? 'border-rose-500/50 bg-rose-950/20 text-rose-300'
+                        : 'border-slate-800 bg-slate-900 text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    <span>{muteAudio ? 'Muted' : 'Enabled'}</span>
+                    <div className={`w-3 h-3 rounded-full ${muteAudio ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                  </button>
                 </div>
               </div>
             </div>

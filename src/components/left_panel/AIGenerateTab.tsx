@@ -18,14 +18,18 @@ export const AIGenerateTab: React.FC = () => {
 
       const newAssets: Record<string, MediaAsset> = { ...project.assets };
 
-      // Base demo images available in the project
-      const fallbackImages = [
-        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1080&q=80',
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1080&q=80',
-        'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=1080&q=80',
-        'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1080&q=80',
-        'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1080&q=80',
-      ];
+      // Pull available visual media from the user's project bins instead of hardcoded unsplash links
+      const userVisualAssets = Object.values(project.assets).filter(
+        a => a.type === 'video' || a.type === 'image' || a.filename?.match(/\.(jpg|jpeg|png|mp4|mov)$/i)
+      );
+      
+      if (userVisualAssets.length === 0) {
+        alert('Please upload some images or videos to the Media Bin first to generate a template!');
+        setIsGenerating(false);
+        return;
+      }
+      
+      const fallbackImages = userVisualAssets.map(a => a.url).filter(Boolean) as string[];
 
       // Build Video Track V1
       const videoClips: Clip[] = [];
@@ -131,42 +135,11 @@ export const AIGenerateTab: React.FC = () => {
         overlayTime += seg.duration;
       }
 
-      // Build Audio Track A1
-      const audioAssetId = `audio-tension-${Date.now()}`;
-      newAssets[audioAssetId] = {
-        assetId: audioAssetId,
-        type: 'audio',
-        filename: `${template.title} Tension Synth.mp3`,
-        url: 'https://cdn.freesound.org/previews/568/568600_12394276-lq.mp3',
-        duration: cumulativeTime,
-      };
-
-      const audioClip: Clip = {
-        clipId: `clip-audio-${Date.now()}`,
-        assetId: audioAssetId,
-        trackId: 'A1',
-        startTime: 0,
-        duration: cumulativeTime,
-        sourceIn: 0,
-        sourceOut: cumulativeTime,
-        keyframes: [],
-        transform: {
-          scale: 1,
-          positionX: 0,
-          positionY: 0,
-          rotation: 0,
-          opacity: 100,
-        },
-        audio: {
-          volume: 0,
-          fadeIn: 0.5,
-          fadeOut: 0.5,
-          speed: 1.0,
-          maintainPitch: true,
-        },
-      };
-
-      // Create tracks
+      // Check for an uploaded audio file for background music
+      const userAudioAssets = Object.values(project.assets).filter(
+        a => a.type === 'audio' || a.filename?.match(/\.(mp3|wav|m4a|ogg)$/i)
+      );
+      
       const tracks: Track[] = [
         {
           trackId: 'L1',
@@ -184,15 +157,34 @@ export const AIGenerateTab: React.FC = () => {
           locked: false,
           clips: videoClips,
         },
-        {
+      ];
+      
+      // If user has uploaded audio, add it as a background score
+      if (userAudioAssets.length > 0) {
+        const bgAudioAsset = userAudioAssets[0];
+        
+        const audioClip: Clip = {
+          clipId: `clip-audio-${Date.now()}`,
+          assetId: bgAudioAsset.assetId,
+          trackId: 'A1',
+          startTime: 0,
+          duration: cumulativeTime,
+          sourceIn: 0,
+          sourceOut: cumulativeTime,
+          keyframes: [],
+          transform: { scale: 1, positionX: 0, positionY: 0, rotation: 0, opacity: 100 },
+          audio: { volume: 0, fadeIn: 0.5, fadeOut: 0.5, speed: 1.0, maintainPitch: true },
+        };
+        
+        tracks.push({
           trackId: 'A1',
           type: 'audio',
           name: 'Background Score (A1)',
           muted: false,
           locked: false,
           clips: [audioClip],
-        },
-      ];
+        });
+      }
 
       // Update full project document
       const updatedDoc = {
