@@ -4,13 +4,37 @@ export const DEFAULT_API_KEYS: ApiKeyConfig[] = [
   {
     id: 'key-gemini-default',
     provider: 'gemini',
-    name: 'Google Gemini Pro 2.5 (Built-In)',
+    name: 'Google Gemini (Built-In)',
     apiKey: 'BUILT_IN_ENV_GEMINI_KEY',
     modelName: 'gemini-2.5-flash',
     isActive: true,
     isDefault: true,
     createdAt: new Date().toISOString(),
     testStatus: 'valid',
+  },
+  {
+    id: 'key-groq-preset',
+    provider: 'groq',
+    name: 'Groq — LLaMA 3.3 70B (Free)',
+    apiKey: '',
+    modelName: 'llama-3.3-70b-versatile',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    isActive: false,
+    isDefault: false,
+    createdAt: new Date().toISOString(),
+    testStatus: 'untested',
+  },
+  {
+    id: 'key-openrouter-preset',
+    provider: 'openrouter',
+    name: 'OpenRouter — Free Models',
+    apiKey: '',
+    modelName: 'meta-llama/llama-3.3-70b-instruct:free',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    isActive: false,
+    isDefault: false,
+    createdAt: new Date().toISOString(),
+    testStatus: 'untested',
   },
   {
     id: 'key-openai-preset',
@@ -47,3 +71,4 @@ export const DEFAULT_API_KEYS: ApiKeyConfig[] = [
     testStatus: 'untested',
   },
 ];
+

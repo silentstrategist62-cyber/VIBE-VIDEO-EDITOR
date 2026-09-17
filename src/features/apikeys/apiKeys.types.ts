@@ -4,6 +4,7 @@ export type LlmProvider =
   | 'anthropic'
   | 'deepseek'
   | 'groq'
+  | 'openrouter'
   | 'mistral'
   | 'ollama'
   | 'custom';
@@ -40,6 +41,22 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     helpText: 'Google AI Studio API Key for Gemini 2.5 Flash / Pro',
   },
   {
+    provider: 'groq',
+    displayName: 'Groq Cloud (Free — Ultra Fast)',
+    defaultModel: 'llama-3.3-70b-versatile',
+    defaultBaseUrl: 'https://api.groq.com/openai/v1',
+    placeholderKey: 'gsk_...',
+    helpText: 'Groq Cloud FREE API — LLaMA 3.3 70B. Get key at console.groq.com (no credit card needed)',
+  },
+  {
+    provider: 'openrouter',
+    displayName: 'OpenRouter (Free Models)',
+    defaultModel: 'meta-llama/llama-3.3-70b-instruct:free',
+    defaultBaseUrl: 'https://openrouter.ai/api/v1',
+    placeholderKey: 'sk-or-...',
+    helpText: 'OpenRouter FREE tier — access Llama, Gemma, Qwen and more. Get key at openrouter.ai (no credit card needed)',
+  },
+  {
     provider: 'openai',
     displayName: 'OpenAI (GPT-4o)',
     defaultModel: 'gpt-4o',
@@ -60,14 +77,6 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     defaultBaseUrl: 'https://api.deepseek.com',
     placeholderKey: 'sk-...',
     helpText: 'DeepSeek API Key for DeepSeek-V3 and DeepSeek-R1',
-  },
-  {
-    provider: 'groq',
-    displayName: 'Groq Cloud',
-    defaultModel: 'llama-3.3-70b-versatile',
-    defaultBaseUrl: 'https://api.groq.com/openai/v1',
-    placeholderKey: 'gsk_...',
-    helpText: 'Groq Cloud Ultra-Fast LLaMA API Key',
   },
   {
     provider: 'mistral',
@@ -94,3 +103,4 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     helpText: 'Any custom LLM server with OpenAI-compatible completion API',
   },
 ];
+

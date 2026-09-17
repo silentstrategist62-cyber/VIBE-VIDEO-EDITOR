@@ -125,10 +125,7 @@ async function startServer() {
     try {
       return new GoogleGenAI({
         apiKey: keyToUse,
-        httpOptions: { 
-          headers: { 'User-Agent': 'aistudio-build' },
-          apiVersion: 'v1',
-        },
+        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } },
       });
     } catch {
       return null;
@@ -144,15 +141,15 @@ async function startServer() {
 
   // Test API Key
   app.post('/api/test-key', async (req, res) => {
-    const { provider, apiKey, model } = req.body;
+    const { provider, apiKey, model, baseUrl } = req.body;
     if (!apiKey) {
       return res.status(400).json({ valid: false, error: 'No API key provided' });
     }
 
     try {
       if (provider === 'gemini') {
-        const testClient = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1' } });
-        const models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.5-flash', 'gemini-3.6-flash'];
+        const testClient = new GoogleGenAI({ apiKey });
+        const models = ['gemini-2.5-flash', 'gemini-3.6-flash', 'gemini-3.5-flash'];
         let lastError = '';
         for (const m of models) {
           try {
@@ -166,15 +163,41 @@ async function startServer() {
           } catch (err: any) {
             const errStr = err.message || String(err);
             lastError = errStr;
-            // If quota exceeded, the key IS valid — just rate-limited
             if (errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota')) {
-              return res.json({ valid: true, warning: 'Key is valid but you have reached the free usage quota. Wait a bit or upgrade your Google AI plan.' });
+              return res.json({ valid: true, warning: 'Key is valid but free quota reached.' });
             }
-            // Otherwise keep trying the next model
           }
         }
-        return res.json({ valid: false, error: `All models failed. Last error: ${lastError}` });
+        return res.json({ valid: false, error: `All Gemini models failed. Last error: ${lastError}` });
       }
+
+      if (provider === 'groq' || provider === 'openrouter') {
+        const endpoint = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions';
+        const modelToUse = model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'meta-llama/llama-3.3-70b-instruct:free');
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        };
+        if (provider === 'openrouter') {
+          headers['HTTP-Referer'] = 'http://localhost:3000';
+          headers['X-Title'] = 'Autonomous Video Editor';
+        }
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: modelToUse,
+            messages: [{ role: 'user', content: 'Reply OK' }],
+            max_tokens: 10,
+          }),
+        });
+        const data: any = await resp.json();
+        if (data.choices?.[0]?.message?.content) {
+          return res.json({ valid: true });
+        }
+        return res.json({ valid: false, error: data.error?.message || 'Invalid response from API' });
+      }
+
       return res.json({ valid: true });
     } catch (err: any) {
       return res.json({ valid: false, error: err.message });
@@ -361,15 +384,104 @@ async function startServer() {
     }));
 
     const geminiKey = apiKeyConfig?.provider === 'gemini' && apiKeyConfig.apiKey ? apiKeyConfig.apiKey.trim() : undefined;
+    const groqKey = apiKeyConfig?.provider === 'groq' && apiKeyConfig.apiKey ? apiKeyConfig.apiKey.trim() : process.env.GROQ_API_KEY;
     const client = getAiClientForKey(geminiKey) || getAiClient();
-    console.log(`[LLM] Using key source: ${geminiKey ? 'frontend-key (len=' + geminiKey.length + ')' : '.env key'}`);
+    const provider = apiKeyConfig?.provider || 'gemini';
+    const usingCustomLlm = provider === 'groq' || provider === 'openrouter';
+    const customKey = apiKeyConfig?.apiKey?.trim() || '';
+
+    console.log(`[LLM] Provider: ${provider}, key-len: ${(geminiKey || customKey || '').length}`);
     let operations: Operation[] = [];
     let assistantMessage = '';
     let agentThinking = '';
     let llmHandled = false;
     let lastModelError = '';
 
-    if (client) {
+    // --- GROQ / OPENROUTER BRANCH ---
+    if (usingCustomLlm && customKey) {
+      try {
+        const customSkillsSection = activeSkills.length > 0
+          ? '\n\nACTIVE SKILLS:\n' + activeSkills.map((s, idx) => `### SKILL ${idx + 1}: ${s.name}\n${s.rules}`).join('\n\n')
+          : '';
+
+        const customSystemPrompt = `You are a highly intelligent professional filmmaker and creative co-editor with TOTAL CONTROL over the timeline. DO THE ACTUAL WORK — generate real JSON operations to manipulate the timeline.
+
+CURRENT TIMELINE: ${project.timeline.duration}s duration
+CLIPS: ${JSON.stringify(timelineClips)}
+MEDIA BIN: ${JSON.stringify(availableAssets)}
+
+OUTPUT: ONLY a valid JSON object: {"thinking":"<step-by-step reasoning>","message":"<response to user>","operations":[<Operation objects or []>]}
+
+OPERATIONS: add_clip, trim_clip, delete_clip, move_clip, split_clip, set_speed, add_transition, remove_transition, set_transform, set_adjust, set_volume, add_keyframe, batch_operations.
+
+add_clip format: {"op":"add_clip","clip":{"clipId":"<unique>","assetId":"<from media bin>","trackId":"V1","startTime":<s>,"duration":<s>,"sourceIn":0,"sourceOut":<s>,"transform":{"scale":1,"positionX":0,"positionY":0,"opacity":100},"keyframes":[]}}${customSkillsSection}`;
+
+        const customMessages = [
+          { role: 'system', content: customSystemPrompt },
+          ...((history || []).slice(-8)
+            .filter((h: any) => h.role !== 'system' && (h.text || h.message))
+            .map((h: any) => ({ role: h.role === 'user' ? 'user' : 'assistant', content: (h.text || h.message || '').trim() }))),
+          { role: 'user', content: instruction },
+        ];
+
+        const endpoint = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions';
+        const customModels = provider === 'groq' 
+          ? ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'] 
+          : ['meta-llama/llama-3.3-70b-instruct:free', 'mistralai/mistral-nemo:free'];
+
+        for (const model of customModels) {
+          try {
+            const headers: Record<string, string> = {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${customKey}`,
+            };
+            if (provider === 'openrouter') {
+              headers['HTTP-Referer'] = 'http://localhost:3000';
+              headers['X-Title'] = 'Autonomous Video Editor';
+            }
+
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ model, messages: customMessages, temperature: 0.7, response_format: { type: 'json_object' } }),
+            });
+            const data: any = await res.json();
+            const text = data?.choices?.[0]?.message?.content?.trim();
+            
+            if (text) {
+              console.log(`[LLM] ${provider} success: ${model}`);
+              let parsed: any;
+              try { parsed = JSON.parse(text); } catch { parsed = null; }
+              if (parsed) {
+                agentThinking = parsed.thinking || '';
+                const rawOps = Array.isArray(parsed.operations) ? parsed.operations : [];
+                const allClips = project.timeline.tracks.flatMap((t: any) => t.clips);
+                for (const op of rawOps) {
+                  if (op.op === 'execute_skill_action') {
+                    const targetClips = op.clipIds ? allClips.filter((c: any) => op.clipIds.includes(c.clipId)) : allClips.slice(0, 1);
+                    if (targetClips.length > 0) operations.push(...executeSkillAction(op.actionType, op.variant, targetClips, op.params));
+                  } else { operations.push(op); }
+                }
+                assistantMessage = parsed.message || parsed.explanation || (operations.length > 0 ? "Done — timeline updated." : "Ready. What would you like to do?");
+                llmHandled = true;
+                break;
+              }
+            } else if (data?.error) {
+              lastModelError = data.error.message || JSON.stringify(data.error);
+              console.error(`[LLM] ${provider} ${model} error:`, lastModelError);
+            }
+          } catch (err: any) {
+            lastModelError = err.message;
+            console.error(`[LLM] ${provider} ${model} failed:`, lastModelError);
+          }
+        }
+      } catch (err: any) {
+        lastModelError = err.message;
+        console.error(`[LLM] ${provider} error:`, lastModelError);
+      }
+    }
+
+    if (client && !llmHandled) {
       try {
         const skillsSection = activeSkills.length > 0
           ? `\n\nUSER-DEFINED SKILLS & EXECUTION RULES (CLAUDE-STYLE):
@@ -487,12 +599,11 @@ CRITICAL RULES:
         }
 
         // Model priority: highest free-tier daily quota first
-        // gemini-1.5-flash: 1500 RPD | gemini-2.5-flash: 500 RPD | gemini-3.6-flash: 20 RPD
+        // gemini-2.5-flash: 500 RPD | gemini-3.6-flash: 20 RPD (all use v1beta default)
         const modelsToTry = [
-          'gemini-1.5-flash',   // 1500 requests/day free
-          'gemini-1.5-flash-latest',
-          'gemini-2.5-flash',   // 500 requests/day free
-          'gemini-3.6-flash',   // 20 requests/day free (last resort)
+          'gemini-2.5-flash',      // 500 requests/day free
+          'gemini-3.6-flash',      // 20 requests/day free
+          'gemini-3.5-flash',      // fallback
         ];
         let response: any = null;
 
