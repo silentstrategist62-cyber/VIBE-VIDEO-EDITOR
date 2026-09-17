@@ -645,7 +645,6 @@ CRITICAL RULES:
         const modelsToTry = [
           'gemini-2.5-flash',      // Latest flash
           'gemini-2.0-flash',      // Previous flash
-          'gemini-1.5-flash',      // Fallback flash
         ];
         let response: any = null;
 
@@ -671,8 +670,11 @@ CRITICAL RULES:
               break;
             }
           } catch (_modelErr: any) {
-            lastModelError = _modelErr.message || String(_modelErr);
+            lastModelError = _modelErr.message || JSON.stringify(_modelErr);
             console.error(`[LLM] Model ${model} failed:`, lastModelError);
+            if (lastModelError.includes('429') || lastModelError.includes('RESOURCE_EXHAUSTED') || lastModelError.includes('quota')) {
+              break; // Don't try other models if the API key is rate limited
+            }
           }
         }
 
