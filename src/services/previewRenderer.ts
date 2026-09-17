@@ -1245,8 +1245,7 @@ export function renderCanvasFrame(
     const visualTracks = project.timeline.tracks
       .filter(
         (t) =>
-          (t.type === 'video' || t.type === 'overlay' || t.trackId.startsWith('V') || t.trackId.startsWith('L')) &&
-          !t.muted
+          t.type === 'video' || t.type === 'overlay' || t.trackId.startsWith('V') || t.trackId.startsWith('L')
       )
       .sort((a, b) => {
         const aIsOverlay = a.type === 'overlay' || a.trackId.startsWith('L');
@@ -1370,7 +1369,7 @@ export function renderCanvasFrame(
               
               // Apply volume from clip settings (Decibels to Linear)
               const rawVol = activeClip.audio?.volume ?? 0;
-              const isMuted = activeClip.audio?.muted ?? track.muted ?? false;
+              const isMuted = (activeClip.audio as any)?.muted ?? (track as any).muted ?? false;
               if (isMuted || rawVol <= -60) {
                 vid.volume = 0;
               } else {

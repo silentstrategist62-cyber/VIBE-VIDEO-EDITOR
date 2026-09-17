@@ -254,21 +254,19 @@ export function createInitialDemoProject(): ProjectDocument {
       fps: 30,
     },
     manifest: {
-      version: 1,
-      lastSaved: new Date().toISOString(),
-      author: 'User',
-      dependencies: []
+      segments: [],
+      unmatchedAssets: []
     },
     timeline: {
       duration: 30, // Default base length
       tracks: [
-        { id: 'V1', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 1' },
-        { id: 'V2', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 2' },
-        { id: 'A1', type: 'audio', clips: [], locked: false, hidden: false, name: 'Audio 1' },
+        { trackId: 'V1', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 1' },
+        { trackId: 'V2', type: 'video', clips: [], locked: false, hidden: false, name: 'Video 2' },
+        { trackId: 'A1', type: 'audio', clips: [], locked: false, hidden: false, name: 'Audio 1' },
       ],
     },
     assets: {},
-    history: { past: [], present: null as any, future: [] },
+    history: { past: [], future: [] },
     chatLog: [],
   };
 }

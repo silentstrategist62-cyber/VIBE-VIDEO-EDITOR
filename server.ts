@@ -461,7 +461,7 @@ request_transcription format: {"op":"request_transcription","assetId":"<audio-as
           customModels = ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free', 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free'];
         } else if (provider === 'openai') {
           endpoint = 'https://api.openai.com/v1/chat/completions';
-          customModels = [apiKeyConfig?.modelName || 'gpt-4o', 'gpt-4o-mini'];
+          customModels = [apiKeyConfig?.model || 'gpt-4o', 'gpt-4o-mini'];
         } else if (provider === 'deepseek') {
           endpoint = 'https://api.deepseek.com/chat/completions';
           customModels = ['deepseek-chat', 'deepseek-reasoner'];
