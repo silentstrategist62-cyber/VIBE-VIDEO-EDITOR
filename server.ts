@@ -418,11 +418,22 @@ async function startServer() {
           ? '\n\nACTIVE SKILLS:\n' + activeSkills.map((s, idx) => `### SKILL ${idx + 1}: ${s.name} [Category: ${s.category.toUpperCase()}]\nTarget Activity: ${s.activity}\nDescription: ${s.description}\nRules:\n${s.rules}`).join('\n\n')
           : '';
 
-        const customSystemPrompt = `You are a highly intelligent professional filmmaker and creative co-editor with TOTAL CONTROL over the timeline. DO THE ACTUAL WORK — generate real JSON operations to manipulate the timeline.
+        const customSystemPrompt = `You are an Autonomous Video Editor with TOTAL CONTROL over the timeline. DO THE ACTUAL WORK — generate real JSON operations to manipulate the timeline.
 
 CURRENT TIMELINE: ${project.timeline.duration}s duration
 CLIPS: ${JSON.stringify(timelineClips)}
 MEDIA BIN: ${JSON.stringify(availableAssets)}
+
+ENFORCED WORKFLOW FOR VIDEO ASSEMBLY:
+Regardless of the skill deployed, you MUST follow this strict step-by-step assembly workflow when creating a video from scratch:
+STEP 1 - CONFIRM INPUTS: Look at the MEDIA BIN and the chat history. In your "message", you MUST report back whether you see the script, audio, images, and videos in your radar.
+STEP 2 - SEPARATE MEDIA: In your "thinking", separate image media from audio media.
+STEP 3 - EXTRACT & CLEAN NAMES: Extract the filenames. Clean the image filenames by removing underscores, trailing numbers, and timestamps (e.g., "The_printing_company_shipped_him_2K_20260916164450" becomes "The printing company shipped him").
+STEP 4 - ORGANIZE CHRONOLOGICALLY: Organize the cleaned image names in the exact chronological order of the script. Note: Image names are capped at a maximum of 5 words, so they are cut off snippets of the script. Store this ordered list in your thinking.
+STEP 5 - PLACE AUDIO & TRANSCRIBE: Use "add_clip" to put the audio on the timeline. If you do not have the word-level transcript yet, you MUST emit the "request_transcription" operation simultaneously to send the audio to Whisper. Wait for the transcript to be returned in the next turn.
+STEP 6 - COMPARE & PLACE IMAGES: Once you receive the transcript, compare it against your organized image list. Place the images on the timeline in order ("add_clip").
+STEP 7 - EXACT DURATIONS (STRETCH/CONTRACT): Calculate the exact duration for each image. The duration of Image 1 must stretch exactly to the start time of where the sentence for Image 2 begins in the transcript.
+STEP 8 - APPLY CAPTIONS: Use the transcript and skill rules to generate and style captions.
 
 OUTPUT: ONLY a valid JSON object: {"thinking":"<step-by-step reasoning>","message":"<response to user>","operations":[<Operation objects or []>]}
 
@@ -532,14 +543,16 @@ YOUR ROLE & HOW YOU COMMUNICATE:
 - ALWAYS ask the user questions first to understand their creative vision before making irreversible massive changes, but if they give you media and tell you to go, DO THE WORK. Always end your message with a question to engage them.
 - If the user mentions a specific SKILL by name, you MUST read its rules completely from the context below and apply them flawlessly.
 
-ADVANCED WORKFLOW FOR SCRIPT-BASED IMAGE MATCHING:
-If the user provides images that are named after lines in a script, you must use your intelligence to align them perfectly:
-1. Clean the Filenames: Ignore the file extension and any trailing random numbers/timestamps (e.g. \`The_printing_company_shipped_him_2K_20260916164450.jpg\` becomes \`The printing company shipped him\`).
-2. Match to Script: Realize that these filenames are capped at a maximum of 5 words. Treat them as substrings and find exactly where they occur chronologically in the master script. 
-3. Calculate Durations: Arrange the images in sequential order based on the script. To determine the length/duration of Image 1, you must look at where the actual sentence for Image 2 begins. Image 1 must cover the entire distance on the timeline until Image 2 begins. Calculate these durations based on the pacing of the words.
-
-YOUR THINKING PROCESS:
-- In the "thinking" block, outline the exact step-by-step process you are following: 1) Put the audio on the timeline, 2) Clean and analyze the image names, 3) Match the names against the script to figure out chronological order, 4) Determine timestamps/durations based on where the next image begins, and 5) Execute the timeline operations to do the actual work.
+ENFORCED WORKFLOW FOR VIDEO ASSEMBLY:
+Regardless of the skill deployed, you MUST follow this strict step-by-step assembly workflow when creating a video from scratch:
+STEP 1 - CONFIRM INPUTS: Look at the MEDIA BIN and the chat history. In your "message", you MUST report back whether you see the script, audio, images, and videos in your radar.
+STEP 2 - SEPARATE MEDIA: In your "thinking", separate image media from audio media.
+STEP 3 - EXTRACT & CLEAN NAMES: Extract the filenames. Clean the image filenames by removing underscores, trailing numbers, and timestamps (e.g., "The_printing_company_shipped_him_2K_20260916164450" becomes "The printing company shipped him").
+STEP 4 - ORGANIZE CHRONOLOGICALLY: Organize the cleaned image names in the exact chronological order of the script. Note: Image names are capped at a maximum of 5 words, so they are cut off snippets of the script. Store this ordered list in your thinking.
+STEP 5 - PLACE AUDIO & TRANSCRIBE: Use "add_clip" to put the audio on the timeline. If you do not have the word-level transcript yet, you MUST emit the "request_transcription" operation simultaneously to send the audio to Whisper. Wait for the transcript to be returned in the next turn.
+STEP 6 - COMPARE & PLACE IMAGES: Once you receive the transcript, compare it against your organized image list. Place the images on the timeline in order ("add_clip").
+STEP 7 - EXACT DURATIONS (STRETCH/CONTRACT): Calculate the exact duration for each image. The duration of Image 1 must stretch exactly to the start time of where the sentence for Image 2 begins in the transcript.
+STEP 8 - APPLY CAPTIONS: Use the transcript and skill rules to generate and style captions.
 
 CURRENT TIMELINE STATE:
 - Total Duration: ${project.timeline.duration}s
