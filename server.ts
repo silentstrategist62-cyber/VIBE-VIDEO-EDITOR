@@ -150,7 +150,6 @@ async function startServer() {
       if (provider === 'gemini') {
         const testClient = new GoogleGenAI({ apiKey });
         const models = [model || 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.5-flash'];
-        let success = false;
         let lastError = '';
         for (const m of models) {
           try {
@@ -159,32 +158,20 @@ async function startServer() {
               contents: 'Reply with the word OK.',
             });
             if (result.text) {
-              success = true;
-              break;
+              return res.json({ valid: true });
             }
           } catch (err: any) {
             const errStr = err.message || String(err);
             lastError = errStr;
-            // If it's an invalid API key, stop immediately — no point trying more models
-            if (errStr.includes('API_KEY_INVALID') || errStr.includes('API key not valid')) {
-              return res.json({ 
-                valid: false, 
-                error: 'Your API key is not valid. Please get a valid key from https://aistudio.google.com/apikey — it should start with "AIzaSy..."' 
-              });
-            }
-            // If quota exceeded, the key IS valid, just rate-limited
+            // If quota exceeded, the key IS valid — just rate-limited
             if (errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota')) {
-              return res.json({ valid: true, warning: 'Key is valid but you have hit your free quota limit. Upgrade your Google AI plan to continue.' });
+              return res.json({ valid: true, warning: 'Key is valid but you have reached the free usage quota. Wait a bit or upgrade your Google AI plan.' });
             }
+            // Otherwise keep trying the next model
           }
         }
-        if (success) {
-          return res.json({ valid: true });
-        } else {
-          return res.json({ valid: false, error: lastError });
-        }
+        return res.json({ valid: false, error: `All models failed. Last error: ${lastError}` });
       }
-      // For other providers, just return true for now
       return res.json({ valid: true });
     } catch (err: any) {
       return res.json({ valid: false, error: err.message });
@@ -601,14 +588,14 @@ CRITICAL RULES:
     // Heuristic fallback only if LLM is unavailable
     if (!llmHandled) {
       if (!client) {
-        assistantMessage = "I cannot answer your question right now because no Gemini API key is configured. Please click the Settings gear to add your API key so I can chat with you and edit the timeline!";
-      } else if (lastModelError.includes('API_KEY_INVALID') || lastModelError.includes('API key not valid')) {
-        assistantMessage = "❌ Your Gemini API key is not valid. The key you entered (starts with 'AQ.') is a GCP credential, not a Gemini API key. Please go to https://aistudio.google.com/apikey and create a new key — it should start with 'AIzaSy...'. Then paste it in Settings.";
+        assistantMessage = "I cannot answer your question right now because no Gemini API key is configured. Please click the Settings gear to add your API key.";
       } else if (lastModelError.includes('RESOURCE_EXHAUSTED') || lastModelError.includes('quota')) {
-        assistantMessage = "⚠️ Your Gemini API free quota has been reached (20 requests/day). Your key is valid, but you need to upgrade your Google AI plan at https://aistudio.google.com to continue using the editor today.";
-      } else {
+        assistantMessage = "⚠️ Your Gemini API free quota has been reached (20 requests/day on free tier). Your key is valid, but you need to wait for the quota to reset or upgrade your Google AI plan at https://aistudio.google.com to continue.";
+      } else if (lastModelError) {
         console.error('[LLM] All models failed. Last error:', lastModelError);
-        assistantMessage = `I'm sorry, but the Gemini API call failed. Error: ${lastModelError || 'unknown'}. Please verify your API key in Settings.`;
+        assistantMessage = `I'm sorry, but the AI call failed. Error: ${lastModelError.slice(0, 200)}. Please verify your API key in Settings.`;
+      } else {
+        assistantMessage = "I'm sorry, something went wrong calling the AI. Please check your API key in Settings and try again.";
       }
       operations = [];
     }
