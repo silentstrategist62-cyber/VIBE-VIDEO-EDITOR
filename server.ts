@@ -149,7 +149,7 @@ async function startServer() {
     try {
       if (provider === 'gemini') {
         const testClient = new GoogleGenAI({ apiKey });
-        const models = ['gemini-2.5-flash', 'gemini-3.6-flash', 'gemini-3.5-flash'];
+        const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
         let lastError = '';
         for (const m of models) {
           try {
@@ -643,9 +643,9 @@ CRITICAL RULES:
         // Model priority: highest free-tier daily quota first
         // gemini-2.5-flash: 500 RPD | gemini-3.6-flash: 20 RPD (all use v1beta default)
         const modelsToTry = [
-          'gemini-2.5-flash',      // 500 requests/day free
-          'gemini-3.6-flash',      // 20 requests/day free
-          'gemini-3.5-flash',      // fallback
+          'gemini-2.5-flash',      // Latest flash
+          'gemini-2.0-flash',      // Previous flash
+          'gemini-1.5-flash',      // Fallback flash
         ];
         let response: any = null;
 
@@ -662,7 +662,7 @@ CRITICAL RULES:
             });
 
             const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Gemini call timed out')), 25000)
+              setTimeout(() => reject(new Error('Gemini call timed out')), 90000)
             );
 
             response = await Promise.race([geminiPromise, timeoutPromise]);
