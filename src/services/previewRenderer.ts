@@ -1479,23 +1479,19 @@ export function renderCanvasFrame(
             try {
               // Draw blurred fill background FIRST (using absolute canvas coords, before transformed space)
               if (img.complete && img.naturalWidth > 0 && Math.abs(mediaAspect - canvasAspect) > 0.05) {
-                ctx.restore(); // Step back to raw canvas coordinate space
-                ctx.save();    // Save at raw canvas level for blur pass
+                const currentTransform = ctx.getTransform();
+                ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform to canvas coords
+                
+                ctx.save();
                 ctx.filter = 'blur(30px)';
                 const bgScale = Math.max(canvasWidth / imgW, canvasHeight / imgH);
                 const bgW = imgW * bgScale;
                 const bgH = imgH * bgScale;
+                ctx.globalAlpha = Math.max(0, Math.min(1, transitionOpacity));
                 ctx.drawImage(img, (canvasWidth - bgW) / 2, (canvasHeight - bgH) / 2, bgW, bgH);
-                ctx.restore(); // Done with blur pass
+                ctx.restore();
 
-                // Re-apply the original transform
-                ctx.save();
-                ctx.translate(cx, cy);
-                if (transform.rotation !== 0) ctx.rotate((transform.rotation * Math.PI) / 180);
-                ctx.scale(transform.scale, transform.scale);
-                const normalizedOpacity = transform.opacity <= 1 ? transform.opacity : transform.opacity / 100;
-                ctx.globalAlpha = Math.max(0, Math.min(1, normalizedOpacity * transitionOpacity));
-                ctx.filter = 'none';
+                ctx.setTransform(currentTransform); // Restore transforms (keeping clip paths intact)
               }
 
               if (img.complete && img.naturalWidth > 0) {
