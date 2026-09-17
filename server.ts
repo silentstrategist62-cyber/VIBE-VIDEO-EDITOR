@@ -226,6 +226,64 @@ async function startServer() {
     }
   });
 
+  // 0.5 Audio Transcription (Whisper)
+  app.post('/api/transcribe', async (req, res) => {
+    try {
+      const { audioBase64, mimeType, apiKey, provider, baseUrl } = req.body;
+      if (!audioBase64) return res.status(400).json({ error: 'Missing audioBase64' });
+
+      // Determine the best transcription endpoint
+      let endpoint = '';
+      let activeKey = apiKey;
+      let model = 'whisper-1';
+
+      if (provider === 'groq') {
+        endpoint = 'https://api.groq.com/openai/v1/audio/transcriptions';
+        model = 'whisper-large-v3';
+      } else if (provider === 'openai') {
+        endpoint = 'https://api.openai.com/v1/audio/transcriptions';
+      } else {
+        // Fallback: If they are using DeepSeek or Gemini (which don't natively have /audio/transcriptions easily exposed like OpenAI),
+        // we'll try to use Groq if they have a groq key in env, or OpenAI if they have an openai key in env.
+        if (process.env.GROQ_API_KEY) {
+          endpoint = 'https://api.groq.com/openai/v1/audio/transcriptions';
+          model = 'whisper-large-v3';
+          activeKey = process.env.GROQ_API_KEY;
+        } else if (process.env.OPENAI_API_KEY) {
+          endpoint = 'https://api.openai.com/v1/audio/transcriptions';
+          activeKey = process.env.OPENAI_API_KEY;
+        } else {
+          return res.status(400).json({ error: 'Audio transcription requires an OpenAI or Groq API key. DeepSeek/Gemini do not natively support the Whisper endpoint in this app.' });
+        }
+      }
+
+      // We must send multipart/form-data with a file blob
+      const buffer = Buffer.from(audioBase64, 'base64');
+      const blob = new Blob([buffer], { type: mimeType || 'audio/mpeg' });
+      const formData = new FormData();
+      formData.append('file', blob, 'audio.mp3');
+      formData.append('model', model);
+      formData.append('response_format', 'text'); // Get plain text back to save tokens
+
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${activeKey}` },
+        body: formData as any,
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        return res.status(resp.status).json({ error: `Transcription API error: ${errText}` });
+      }
+
+      const text = await resp.text();
+      res.json({ transcript: text });
+    } catch (err: any) {
+      console.error('[Transcribe Error]:', err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // 1. List Projects
   app.get('/api/projects', (req, res) => {
     const list = Array.from(projectsStore.values()).map((p) => ({

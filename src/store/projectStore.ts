@@ -1308,7 +1308,7 @@ export const projectStore = {
              const transcribeRes = await fetch('/api/transcribe', {
                method: 'POST',
                headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ audioBase64: base64Audio, mimeType: blob.type, apiKey: activeKey.apiKey }),
+               body: JSON.stringify({ audioBase64: base64Audio, mimeType: blob.type, apiKey: activeKey.apiKey, provider: activeKey.provider, baseUrl: activeKey.baseUrl }),
              });
              
              if (transcribeRes.ok) {
@@ -1324,11 +1324,12 @@ export const projectStore = {
                   notify();
                 }
              } else {
-                state = { ...state, isPromptLoading: false };
-                notify();
+                const errData = await transcribeRes.json().catch(() => ({}));
+                const followUp = `SYSTEM LOG: You requested transcription for asset ${asset.filename}, but it FAILED with error: "${errData.error || 'Unknown API error'}". You must proceed with the assembly WITHOUT the word-level transcript (guess the timings based on the audio duration instead).`;
+                await this.runPromptEdit(followUp);
              }
           } catch (e) {
-             console.error("Agentic transcription failed:", e);
+             console.error('Transcription process failed:', e);
              state = { ...state, isPromptLoading: false };
              notify();
           }
