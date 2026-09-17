@@ -172,19 +172,27 @@ async function startServer() {
       }
 
       if (['groq', 'openrouter', 'openai', 'deepseek'].includes(provider)) {
+        const buildEndpoint = (baseUrlStr: string | undefined, defaultUrl: string) => {
+          if (!baseUrlStr) return defaultUrl;
+          let url = baseUrlStr.trim();
+          if (url.endsWith('/')) url = url.slice(0, -1);
+          if (!url.endsWith('/chat/completions')) url += '/chat/completions';
+          return url;
+        };
+
         let endpoint = '';
         let modelToUse = model;
         if (provider === 'groq') {
-          endpoint = baseUrl || 'https://api.groq.com/openai/v1/chat/completions';
+          endpoint = buildEndpoint(baseUrl, 'https://api.groq.com/openai/v1/chat/completions');
           modelToUse = model || 'llama-3.3-70b-versatile';
         } else if (provider === 'openrouter') {
-          endpoint = baseUrl || 'https://openrouter.ai/api/v1/chat/completions';
+          endpoint = buildEndpoint(baseUrl, 'https://openrouter.ai/api/v1/chat/completions');
           modelToUse = model || 'google/gemini-2.5-flash:free';
         } else if (provider === 'openai') {
-          endpoint = baseUrl || 'https://api.openai.com/v1/chat/completions';
+          endpoint = buildEndpoint(baseUrl, 'https://api.openai.com/v1/chat/completions');
           modelToUse = model || 'gpt-4o-mini';
         } else if (provider === 'deepseek') {
-          endpoint = baseUrl || 'https://api.deepseek.com/chat/completions';
+          endpoint = buildEndpoint(baseUrl, 'https://api.deepseek.com/chat/completions');
           modelToUse = model || 'deepseek-chat';
         }
 
@@ -453,17 +461,25 @@ request_transcription format: {"op":"request_transcription","assetId":"<audio-as
         let endpoint = '';
         let customModels: string[] = [];
 
+        const buildEndpoint = (baseUrl: string | undefined, defaultUrl: string) => {
+          if (!baseUrl) return defaultUrl;
+          let url = baseUrl.trim();
+          if (url.endsWith('/')) url = url.slice(0, -1);
+          if (!url.endsWith('/chat/completions')) url += '/chat/completions';
+          return url;
+        };
+
         if (provider === 'groq') {
-          endpoint = apiKeyConfig?.baseUrl || 'https://api.groq.com/openai/v1/chat/completions';
+          endpoint = buildEndpoint(apiKeyConfig?.baseUrl, 'https://api.groq.com/openai/v1/chat/completions');
           customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile'];
         } else if (provider === 'openrouter') {
-          endpoint = apiKeyConfig?.baseUrl || 'https://openrouter.ai/api/v1/chat/completions';
+          endpoint = buildEndpoint(apiKeyConfig?.baseUrl, 'https://openrouter.ai/api/v1/chat/completions');
           customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['google/gemini-2.5-flash:free', 'qwen/qwen-2.5-72b-instruct:free'];
         } else if (provider === 'openai') {
-          endpoint = apiKeyConfig?.baseUrl || 'https://api.openai.com/v1/chat/completions';
+          endpoint = buildEndpoint(apiKeyConfig?.baseUrl, 'https://api.openai.com/v1/chat/completions');
           customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['gpt-4o', 'gpt-4o-mini'];
         } else if (provider === 'deepseek') {
-          endpoint = apiKeyConfig?.baseUrl || 'https://api.deepseek.com/chat/completions';
+          endpoint = buildEndpoint(apiKeyConfig?.baseUrl, 'https://api.deepseek.com/chat/completions');
           customModels = apiKeyConfig?.model ? [apiKeyConfig.model] : ['deepseek-chat', 'deepseek-reasoner'];
         }
 
@@ -483,7 +499,14 @@ request_transcription format: {"op":"request_transcription","assetId":"<audio-as
               headers,
               body: JSON.stringify({ model, messages: customMessages, temperature: 0.7, response_format: { type: 'json_object' } }),
             });
-            const data: any = await res.json();
+            const rawText = await res.text();
+            let data: any;
+            try {
+              data = JSON.parse(rawText);
+            } catch (parseErr) {
+              console.error(`[LLM] ${provider} ${model} returned non-JSON. Status: ${res.status}. Body:`, rawText.substring(0, 200));
+              throw new Error(`Provider returned non-JSON (Status ${res.status}): ${rawText.substring(0, 100)}`);
+            }
             const text = data?.choices?.[0]?.message?.content?.trim();
             
             if (text) {
