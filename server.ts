@@ -357,8 +357,9 @@ async function startServer() {
       duration: asset.duration,
     }));
 
-    const geminiKey = apiKeyConfig?.provider === 'gemini' && apiKeyConfig.apiKey ? apiKeyConfig.apiKey : undefined;
+    const geminiKey = apiKeyConfig?.provider === 'gemini' && apiKeyConfig.apiKey ? apiKeyConfig.apiKey.trim() : undefined;
     const client = getAiClientForKey(geminiKey) || getAiClient();
+    console.log(`[LLM] Using key source: ${geminiKey ? 'frontend-key (len=' + geminiKey.length + ')' : '.env key'}`);
     let operations: Operation[] = [];
     let assistantMessage = '';
     let agentThinking = '';
