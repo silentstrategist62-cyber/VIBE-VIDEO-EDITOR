@@ -615,6 +615,7 @@ CRITICAL RULES:
               config: {
                 systemInstruction: systemPrompt,
                 temperature: 0.7,
+                responseMimeType: "application/json",
               },
             });
 
