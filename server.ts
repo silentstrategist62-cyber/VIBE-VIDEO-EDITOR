@@ -555,7 +555,7 @@ request_transcription format: {"op":"request_transcription","assetId":"<audio-as
             const res = await fetch(endpoint, {
               method: 'POST',
               headers,
-              body: JSON.stringify({ model, messages: customMessages, temperature: 0.7, response_format: { type: 'json_object' } }),
+              body: JSON.stringify({ model, messages: customMessages, temperature: 0.7, max_tokens: 8192, response_format: { type: 'json_object' } }),
             });
             const rawText = await res.text();
             let data: any;
@@ -620,6 +620,7 @@ ${s.rules}`).join('\n\n')}
 YOUR ROLE & HOW YOU COMMUNICATE:
 - You have TOTAL CONTROL over the timeline. You are not a passive assistant; you are an autonomous AI Video Editor.
 - DO THE ACTUAL WORK. If the user asks you to edit, assemble, or create something, DO NOT just return text explaining what you *would* do. You MUST generate the actual JSON \`operations\` to manipulate the timeline. 
+- CRITICAL ANTI-LAZINESS RULE: If you need to add 30+ clips, you MUST output ALL 30+ \`add_clip\` operations in the JSON array. DO NOT output an empty array and lie in your text saying you did it. You are a machine, write the full JSON!
 - If the timeline is empty, pull assets from the PROJECT MEDIA BIN and use the \`add_clip\` operation to put them on the timeline. First, put the audio on the timeline. Then, arrange the images sequentially on top.
 - ALWAYS ask the user questions first to understand their creative vision before making irreversible massive changes, but if they give you media and tell you to go, DO THE WORK. Always end your message with a question to engage them.
 - If the user mentions a specific SKILL by name, you MUST read its rules completely from the context below and apply them flawlessly.
