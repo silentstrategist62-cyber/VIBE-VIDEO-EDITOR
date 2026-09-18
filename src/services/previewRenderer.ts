@@ -1027,7 +1027,7 @@ function renderGraphicElement(
       ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       drawRoundedRect(ctx, -pw / 2, 0, pw, ph, 7);
       ctx.fill();
-      ctx.fillStyle = element.fillColor || '#10B981';
+      ctx.fillStyle = element.fillColor || '#C9A84C';
       drawRoundedRect(ctx, -pw / 2, 0, pw * 0.65, ph, 7);
       ctx.fill();
     } else {

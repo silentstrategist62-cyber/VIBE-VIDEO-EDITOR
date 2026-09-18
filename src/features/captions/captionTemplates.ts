@@ -121,7 +121,7 @@ export const CAPTION_TEMPLATES: CaptionTemplateDefinition[] = [
     style: {
       fontFamily: 'Impact, sans-serif',
       color: '#06B6D4',
-      activeWordColor: '#38BDF8',
+      activeWordColor: '#C9A84C',
       shadowColor: '#06B6D4',
       shadowBlur: 20,
       textTransform: 'uppercase',

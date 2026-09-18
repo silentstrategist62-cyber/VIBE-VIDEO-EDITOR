@@ -1021,9 +1021,9 @@ export const Timeline: React.FC = () => {
                 {isOverlay ? (
                   <Sparkles className="w-3.5 h-3.5 text-amber-400/80" />
                 ) : isVideo ? (
-                  <Film className="w-3.5 h-3.5 text-[#38BDF8]/80" />
+                  <Film className="w-3.5 h-3.5 text-[#C9A84C]/80" />
                 ) : (
-                  <Music className="w-3.5 h-3.5 text-[#2ECC71]/80" />
+                  <Music className="w-3.5 h-3.5 text-[#C9A84C]/80" />
                 )}
               </div>
             );

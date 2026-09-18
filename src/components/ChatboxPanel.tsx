@@ -338,7 +338,7 @@ export const ChatboxPanel: React.FC = () => {
             <span>AI Agent</span>
           </h2>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#141414] border border-[#C9A84C]/30 min-w-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2ECC71] shadow-[0_0_6px_rgba(46,204,113,0.8)] shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C] shadow-[0_0_6px_rgba(46,204,113,0.8)] shrink-0" />
             <span className="text-[10px] text-[#E8C97A] font-mono truncate max-w-[110px] sm:max-w-[150px]">
               {primarySkill}
             </span>
@@ -407,8 +407,8 @@ export const ChatboxPanel: React.FC = () => {
             <div key={item.id} className="flex flex-col items-start gap-1.5 max-w-[95%]">
               {/* Skill Tag if present (Image 1 style) */}
               {item.skillTag && (
-                <div className="flex items-center gap-1.5 text-[11px] text-[#2ECC71] font-medium ml-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2ECC71] shadow-[0_0_6px_rgba(46,204,113,0.8)]" />
+                <div className="flex items-center gap-1.5 text-[11px] text-[#C9A84C] font-medium ml-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C] shadow-[0_0_6px_rgba(46,204,113,0.8)]" />
                   <span>Loaded {item.skillTag}</span>
                 </div>
               )}
@@ -451,7 +451,7 @@ export const ChatboxPanel: React.FC = () => {
                 {/* Operations Executed Pill */}
                 {item.operations && item.operations.length > 0 && (
                   <div className="mt-2.5 pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px]">
-                    <span className="flex items-center gap-1 text-[#2ECC71] font-mono">
+                    <span className="flex items-center gap-1 text-[#C9A84C] font-mono">
                       <CheckCircle2 className="w-3 h-3" />
                       {item.operations.length} timeline edit{item.operations.length > 1 ? 's' : ''} applied
                     </span>
@@ -472,7 +472,7 @@ export const ChatboxPanel: React.FC = () => {
                   className="p-1 hover:text-[#EEF0F4] rounded hover:bg-white/[0.04] transition-colors cursor-pointer"
                   title="Copy message text"
                 >
-                  {isCopied ? <Check className="w-3.5 h-3.5 text-[#2ECC71]" /> : <Copy className="w-3.5 h-3.5" />}
+                  {isCopied ? <Check className="w-3.5 h-3.5 text-[#C9A84C]" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
                 <button
                   onClick={() => handleReaction(item.id, 'liked')}

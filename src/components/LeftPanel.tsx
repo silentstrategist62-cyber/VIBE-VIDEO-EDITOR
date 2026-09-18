@@ -624,7 +624,7 @@ export const LeftPanel: React.FC = () => {
                                 muted
                                 preload="metadata"
                               />
-                              <div className="absolute top-1 left-1 bg-black/85 px-1.5 py-0.5 rounded text-[8px] font-mono text-[#38BDF8] flex items-center gap-1 border border-sky-500/30 backdrop-blur-sm">
+                              <div className="absolute top-1 left-1 bg-black/85 px-1.5 py-0.5 rounded text-[8px] font-mono text-[#C9A84C] flex items-center gap-1 border border-sky-500/30 backdrop-blur-sm">
                                 <Video className="w-2.5 h-2.5 text-sky-400" />
                                 <span>{asset.width && asset.height ? `${asset.width}×${asset.height}` : 'VIDEO'}</span>
                               </div>
@@ -642,7 +642,7 @@ export const LeftPanel: React.FC = () => {
                               </div>
                             </div>
                           ) : (
-                            <div className="w-full h-full bg-[#0d0d0d] border border-white/5 rounded flex items-center justify-center text-[#2ECC71]">
+                            <div className="w-full h-full bg-[#0d0d0d] border border-white/5 rounded flex items-center justify-center text-[#C9A84C]">
                               <Music className="w-6 h-6" />
                             </div>
                           )}
@@ -747,18 +747,18 @@ export const LeftPanel: React.FC = () => {
 
               <button
                 onClick={() => audioInputRef.current?.click()}
-                className="w-full py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[#dedede] hover:text-[#2ECC71] border border-white/10 hover:border-[#2ECC71]/50 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[#dedede] hover:text-[#C9A84C] border border-white/10 hover:border-[#C9A84C]/50 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Upload className="w-3.5 h-3.5 text-[#2ECC71]" />
+                <Upload className="w-3.5 h-3.5 text-[#C9A84C]" />
                 <span>Import Audio File</span>
               </button>
 
               <button
                 onClick={() => videoExtractInputRef.current?.click()}
                 disabled={isExtractingAudio}
-                className="w-full py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[#dedede] hover:text-[#38BDF8] border border-white/10 hover:border-[#38BDF8]/50 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="w-full py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[#dedede] hover:text-[#C9A84C] border border-white/10 hover:border-[#C9A84C]/50 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <FileAudio className="w-3.5 h-3.5 text-[#38BDF8]" />
+                <FileAudio className="w-3.5 h-3.5 text-[#C9A84C]" />
                 <span>{isExtractingAudio ? 'Extracting Audio Track...' : 'Extract Audio from Video'}</span>
               </button>
             </div>

@@ -116,7 +116,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onBackToHome }) => {
         >
           <Bot className="w-3.5 h-3.5 text-[#C9A84C]" />
           <span className="hidden sm:inline">AI Agent</span>
-          <span className={`w-1.5 h-1.5 rounded-full ${isChatOpen ? 'bg-[#2ECC71] shadow-[0_0_6px_rgba(46,204,113,0.8)]' : 'bg-[#4A5260]'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${isChatOpen ? 'bg-[#C9A84C] shadow-[0_0_6px_rgba(46,204,113,0.8)]' : 'bg-[#4A5260]'}`} />
         </button>
 
         {/* Skills & Settings Button (Noise-free, no number badge) */}

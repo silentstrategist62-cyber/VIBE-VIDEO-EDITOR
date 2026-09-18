@@ -1557,7 +1557,7 @@ function renderGraphicSample(
     ctx.roundRect(cx - pw / 2, cy - ph / 2, pw, ph, 6);
     ctx.fill();
 
-    ctx.fillStyle = '#10B981';
+    ctx.fillStyle = '#C9A84C';
     ctx.beginPath();
     ctx.roundRect(cx - pw / 2, cy - ph / 2, fillW, ph, 6);
     ctx.fill();
@@ -1640,12 +1640,12 @@ function renderGraphicSample(
       ctx.fillText('🔴 BREAKING NEWS TICKER', cx, lY);
     } else if (id.includes('cyber')) {
       ctx.fillStyle = 'rgba(6, 78, 59, 0.9)';
-      ctx.strokeStyle = '#10B981';
+      ctx.strokeStyle = '#C9A84C';
       ctx.lineWidth = 1;
       ctx.fillRect(15, lY - 14, w - 30, 28);
       ctx.strokeRect(15, lY - 14, w - 30, 28);
 
-      ctx.fillStyle = '#10B981';
+      ctx.fillStyle = '#C9A84C';
       ctx.font = 'bold 8px monospace';
       ctx.fillText('SYS.PROTOCOL // ONLINE', cx, lY);
     } else {

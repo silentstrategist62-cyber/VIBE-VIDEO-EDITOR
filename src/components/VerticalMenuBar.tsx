@@ -135,7 +135,7 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                         className="w-full flex items-center justify-between px-3 py-1.5 hover:bg-white/[0.08] text-[#EEF0F4] transition-colors cursor-pointer text-left"
                       >
                         <span className="flex items-center gap-2">
-                          <Plus className="w-3.5 h-3.5 text-[#2ECC71]" />
+                          <Plus className="w-3.5 h-3.5 text-[#C9A84C]" />
                           Import Media Files...
                         </span>
                       </button>
@@ -148,7 +148,7 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                         className="w-full flex items-center justify-between px-3 py-1.5 hover:bg-white/[0.08] text-[#EEF0F4] transition-colors cursor-pointer text-left"
                       >
                         <span className="flex items-center gap-2">
-                          <Download className="w-3.5 h-3.5 text-[#2ECC71]" />
+                          <Download className="w-3.5 h-3.5 text-[#C9A84C]" />
                           Export 9:16 Video...
                         </span>
                         <span className="text-[10px] text-[#888888] font-mono">Ctrl+E</span>
@@ -250,7 +250,7 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                           <Bot className="w-3.5 h-3.5 text-[#C9A84C]" />
                           AI Agent Panel
                         </span>
-                        {isChatOpen && <Check className="w-3.5 h-3.5 text-[#2ECC71]" />}
+                        {isChatOpen && <Check className="w-3.5 h-3.5 text-[#C9A84C]" />}
                       </button>
                       <button
                         onClick={() => {
@@ -263,7 +263,7 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                           <FolderOpen className="w-3.5 h-3.5 text-[#C9A84C]" />
                           Tools & Media Drawer
                         </span>
-                        {!isLeftPanelCollapsed && <Check className="w-3.5 h-3.5 text-[#2ECC71]" />}
+                        {!isLeftPanelCollapsed && <Check className="w-3.5 h-3.5 text-[#C9A84C]" />}
                       </button>
                       <button
                         onClick={() => {
@@ -273,10 +273,10 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                         className="w-full flex items-center justify-between px-3 py-1.5 hover:bg-white/[0.08] text-[#EEF0F4] transition-colors cursor-pointer text-left"
                       >
                         <span className="flex items-center gap-2">
-                          <Film className="w-3.5 h-3.5 text-[#2ECC71]" />
+                          <Film className="w-3.5 h-3.5 text-[#C9A84C]" />
                           Multi-Track Timeline
                         </span>
-                        {!isTimelineCollapsed && <Check className="w-3.5 h-3.5 text-[#2ECC71]" />}
+                        {!isTimelineCollapsed && <Check className="w-3.5 h-3.5 text-[#C9A84C]" />}
                       </button>
                       <div className="h-px bg-white/[0.08] my-1" />
                       <button
@@ -335,7 +335,7 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                           <Magnet className="w-3.5 h-3.5 text-[#C9A84C]" />
                           Magnetic Ripple Mode
                         </span>
-                        {isMagneticRipple && <Check className="w-3.5 h-3.5 text-[#2ECC71]" />}
+                        {isMagneticRipple && <Check className="w-3.5 h-3.5 text-[#C9A84C]" />}
                       </button>
                     </div>
                   )}
@@ -389,7 +389,7 @@ export const VerticalMenuBar: React.FC<VerticalMenuBarProps> = ({ onBackToHome }
                           <Key className="w-3.5 h-3.5 text-[#C9A84C]" />
                           Manage API Keys...
                         </span>
-                        <span className="text-[10px] text-[#2ECC71] font-mono font-bold">MULTI</span>
+                        <span className="text-[10px] text-[#C9A84C] font-mono font-bold">MULTI</span>
                       </button>
                       <div className="h-px bg-white/[0.08] my-1" />
                       <div className="px-3 py-1 text-[10px] font-mono text-[#666666]">

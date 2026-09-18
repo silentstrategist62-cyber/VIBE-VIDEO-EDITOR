@@ -32,7 +32,7 @@ export const ShotcutTitleBar: React.FC<ShotcutTitleBarProps> = ({
   const getBadgeClass = () => {
     switch (badgeColor) {
       case 'emerald':
-        return 'bg-[#2ECC71]/15 text-[#2ECC71] border-[#2ECC71]/30';
+        return 'bg-[#C9A84C]/15 text-[#C9A84C] border-[#C9A84C]/30';
       case 'amber':
         return 'bg-[#C9A84C]/20 text-[#E8C97A] border-[#C9A84C]/40';
       case 'indigo':

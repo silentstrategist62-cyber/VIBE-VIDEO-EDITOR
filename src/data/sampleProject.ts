@@ -25,7 +25,7 @@ function createSampleImageSvg(id: string, title: string, bgGradient: string, acc
 
     <!-- Ambient Lighting Elements -->
     <circle cx="280" cy="500" r="360" fill="${accentColor}" fill-opacity="0.12" filter="blur(60px)"/>
-    <circle cx="820" cy="1100" r="420" fill="#38BDF8" fill-opacity="0.08" filter="blur(80px)"/>
+    <circle cx="820" cy="1100" r="420" fill="#C9A84C" fill-opacity="0.08" filter="blur(80px)"/>
 
     <!-- Top Cinematic Header -->
     <text x="540" y="240" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="600" text-anchor="middle" letter-spacing="6">CHAPTER ${id}</text>
@@ -153,7 +153,7 @@ export const SAMPLE_IMAGE_ASSETS: MediaAsset[] = [
     assetId: 'asset-img-b4',
     type: 'image',
     filename: 'B4-sudden-realization.jpg',
-    url: createSampleImageSvg('B4', 'The Moment of Recognition', '<stop offset="0%" stop-color="#172554"/><stop offset="100%" stop-color="#0f172a"/>', '#38BDF8'),
+    url: createSampleImageSvg('B4', 'The Moment of Recognition', '<stop offset="0%" stop-color="#172554"/><stop offset="100%" stop-color="#0f172a"/>', '#C9A84C'),
     width: 1080,
     height: 1920,
   },

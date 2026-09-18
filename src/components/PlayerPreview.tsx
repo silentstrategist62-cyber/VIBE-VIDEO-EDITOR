@@ -348,14 +348,14 @@ export const PlayerPreview: React.FC<PlayerPreviewProps> = ({ isImmersiveMode = 
 
           {/* Safe-zones Overlay */}
           {showSafeZones && (
-            <div className="absolute inset-0 pointer-events-none border border-[#2ECC71]/30 m-4 sm:m-6 rounded flex flex-col justify-between p-3">
-              <div className="bg-[#121212]/90 text-[#2ECC71] text-[9px] px-2 py-0.5 rounded w-max border border-[#2ECC71]/30 font-mono">
+            <div className="absolute inset-0 pointer-events-none border border-[#C9A84C]/30 m-4 sm:m-6 rounded flex flex-col justify-between p-3">
+              <div className="bg-[#121212]/90 text-[#C9A84C] text-[9px] px-2 py-0.5 rounded w-max border border-[#C9A84C]/30 font-mono">
                 Top Safe Zone (UI Header)
               </div>
-              <div className="text-center text-[#2ECC71]/60 text-[9px] uppercase tracking-widest font-mono">
+              <div className="text-center text-[#C9A84C]/60 text-[9px] uppercase tracking-widest font-mono">
                 9:16 Active Target
               </div>
-              <div className="bg-[#121212]/90 text-[#2ECC71] text-[9px] px-2 py-0.5 rounded w-max border border-[#2ECC71]/30 self-center font-mono">
+              <div className="bg-[#121212]/90 text-[#C9A84C] text-[9px] px-2 py-0.5 rounded w-max border border-[#C9A84C]/30 self-center font-mono">
                 Caption Safe Area (~70%)
               </div>
             </div>
@@ -366,7 +366,7 @@ export const PlayerPreview: React.FC<PlayerPreviewProps> = ({ isImmersiveMode = 
             <div className="absolute top-2 left-2 z-20 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100 duration-200">
               <div className="bg-black/85 border border-white/15 rounded-md px-2.5 py-1 flex items-center gap-1.5 text-[10px] font-mono backdrop-blur-md text-[#d0d0d0] shadow-lg">
                 {activeMediaInfo.isVideo ? (
-                  <Video className="w-3 h-3 text-[#38BDF8]" />
+                  <Video className="w-3 h-3 text-[#C9A84C]" />
                 ) : (
                   <ImageIcon className="w-3 h-3 text-[#C9A84C]" />
                 )}
@@ -586,7 +586,7 @@ export const PlayerPreview: React.FC<PlayerPreviewProps> = ({ isImmersiveMode = 
             <button
               onClick={() => setShowSafeZones(!showSafeZones)}
               className={`p-1 rounded transition-colors ${
-                showSafeZones ? 'text-[#2ECC71] bg-[#2ECC71]/15' : 'text-[#7A8290] hover:text-[#EEF0F4]'
+                showSafeZones ? 'text-[#C9A84C] bg-[#C9A84C]/15' : 'text-[#7A8290] hover:text-[#EEF0F4]'
               }`}
               title="Toggle 9:16 Safe Guides"
             >
