@@ -726,6 +726,7 @@ export function applyOperation(
       if (!target) throw new Error(`Clip ${operation.clipId} not found`);
       const { clip } = target;
       const kf = operation.keyframe;
+      if (!kf) return { document: doc, inverse: { op: 'batch_operations', operations: [] } };
       const existingIdx = clip.keyframes.findIndex((k) => k.property === kf.property && Math.abs(k.time - kf.time) < 0.05);
 
       let prevKf: Keyframe | undefined;
@@ -873,7 +874,8 @@ export function applyOperation(
       const inverseOps: Operation[] = [];
       let tempDoc = doc;
 
-      for (const subOp of operation.operations) {
+      const subOps = Array.isArray(operation.operations) ? operation.operations : [];
+      for (const subOp of subOps) {
         const res = applyOperation(tempDoc, subOp, false);
         tempDoc = res.document;
         inverseOps.unshift(res.inverse);
@@ -966,7 +968,7 @@ export function getDefaultDescription(op: Operation): string {
     case 'delete_caption':
       return 'Delete caption';
     case 'add_keyframe':
-      return `Add ${op.keyframe.property || 'motion'} keyframe`;
+      return `Add ${op.keyframe?.property || 'motion'} keyframe`;
     case 'delete_keyframe':
       return `Delete keyframe at ${op.time}s`;
     case 'set_transform':
