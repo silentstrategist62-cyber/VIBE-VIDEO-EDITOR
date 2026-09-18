@@ -237,11 +237,11 @@ export const ApiKeysModal: React.FC = () => {
     >
       <div
         id="modal-apikeys-container"
-        className="bg-[#0e1015] border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] max-h-[720px] flex flex-col overflow-hidden text-zinc-100"
+        className="bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] max-h-[720px] flex flex-col overflow-hidden text-zinc-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header - Sleek Minimalist Theme */}
-        <header className="h-14 px-5 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#090a0e]">
+        <header className="h-14 px-5 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#0a0a0a]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-zinc-800/80 border border-white/10 flex items-center justify-center text-zinc-200">
               <Key className="w-4 h-4 text-zinc-300" />
@@ -269,7 +269,7 @@ export const ApiKeysModal: React.FC = () => {
         </header>
 
         {/* Primary Engine Banner */}
-        <div className="px-5 py-2.5 bg-[#12141c] border-b border-white/10 flex items-center justify-between text-xs">
+        <div className="px-5 py-2.5 bg-[#0a0a0a] border-b border-white/10 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-zinc-400" />
             <span className="text-zinc-400 font-medium">Active Primary LLM Engine:</span>
@@ -300,7 +300,7 @@ export const ApiKeysModal: React.FC = () => {
 
           {/* Form Modal / Overlay when Editing or Creating */}
           {isCreating || editingKey ? (
-            <form onSubmit={handleSaveKey} className="p-5 bg-[#14161f] border border-white/10 rounded-2xl space-y-4 animate-in fade-in">
+            <form onSubmit={handleSaveKey} className="p-5 bg-[#0a0a0a] border border-white/10 rounded-2xl space-y-4 animate-in fade-in">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <h3 className="text-xs font-bold text-white flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-zinc-300" />
@@ -454,7 +454,7 @@ export const ApiKeysModal: React.FC = () => {
                     <button
                       key={preset.provider}
                       onClick={() => handleOpenCreateNew(preset.provider)}
-                      className="p-2.5 bg-[#14161f] border border-white/10 hover:border-zinc-500 rounded-xl text-left transition-all hover:bg-zinc-800/60 group"
+                      className="p-2.5 bg-[#0a0a0a] border border-white/10 hover:border-zinc-500 rounded-xl text-left transition-all hover:bg-zinc-800/60 group"
                     >
                       <div className="flex items-center gap-2">
                         {renderProviderIcon(preset.provider, 'w-4 h-4')}
@@ -477,7 +477,7 @@ export const ApiKeysModal: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search API keys or models..."
-                    className="w-full bg-[#14161f] border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
                   />
                 </div>
 
@@ -488,7 +488,7 @@ export const ApiKeysModal: React.FC = () => {
                     className={`px-3 py-1 rounded-xl font-medium transition-colors shrink-0 ${
                       selectedProviderFilter === 'all'
                         ? 'bg-white text-black font-bold'
-                        : 'bg-[#14161f] text-zinc-400 hover:text-white border border-white/10'
+                        : 'bg-[#0a0a0a] text-zinc-400 hover:text-white border border-white/10'
                     }`}
                   >
                     All Keys ({keysList.length})
@@ -503,7 +503,7 @@ export const ApiKeysModal: React.FC = () => {
                         className={`px-3 py-1 rounded-xl font-medium transition-colors shrink-0 flex items-center gap-1.5 ${
                           selectedProviderFilter === p
                             ? 'bg-white text-black font-bold'
-                            : 'bg-[#14161f] text-zinc-400 hover:text-white border border-white/10'
+                            : 'bg-[#0a0a0a] text-zinc-400 hover:text-white border border-white/10'
                         }`}
                       >
                         {renderProviderIcon(p, 'w-3 h-3')}
@@ -525,10 +525,10 @@ export const ApiKeysModal: React.FC = () => {
                       key={keyItem.id}
                       className={`p-4 rounded-2xl border transition-all ${
                         isPrimary
-                          ? 'bg-[#161822] border-zinc-600 shadow-md'
+                          ? 'bg-[#0a0a0a] border-zinc-600 shadow-md'
                           : keyItem.isActive
-                          ? 'bg-[#14161f] border-white/10 hover:border-zinc-700'
-                          : 'bg-[#101218]/50 border-white/5 opacity-60'
+                          ? 'bg-[#0a0a0a] border-white/10 hover:border-zinc-700'
+                          : 'bg-[#0a0a0a]/50 border-white/5 opacity-60'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
@@ -564,7 +564,7 @@ export const ApiKeysModal: React.FC = () => {
                       </div>
 
                       {/* Secret Preview */}
-                      <div className="p-2.5 bg-[#0a0c10] border border-white/10 rounded-xl flex items-center justify-between gap-2 text-[11px] font-mono mb-3">
+                      <div className="p-2.5 bg-[#0a0a0a] border border-white/10 rounded-xl flex items-center justify-between gap-2 text-[11px] font-mono mb-3">
                         <span className="text-zinc-300 truncate">
                           {keyItem.apiKey
                             ? isSecretShown

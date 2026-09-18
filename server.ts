@@ -9,6 +9,16 @@ import { DEFAULT_EDITOR_SKILLS } from './src/data/defaultSkills';
 import { createInitialDemoProject } from './src/data/sampleProject';
 import { runAutonomousAssembly, AssemblyInputs } from './src/services/autonomousAssembler';
 import { applyOperation } from './src/services/operationApplier';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Prevent Node from crashing on unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Unhandled Rejection]', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[Uncaught Exception]', err);
+});
 
 dotenv.config();
 
